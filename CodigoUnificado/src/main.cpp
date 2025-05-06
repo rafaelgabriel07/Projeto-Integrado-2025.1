@@ -3,23 +3,24 @@
 #include <WiFi.h>
 #include <time.h>  // Para usar NTP no NodeMCU
 
+// Pinos dos sensores
 #define SENSOR_UV 15
-#define LUZ 27
-#define INTERVALO_LEITURA 0.1  // Minutos
 #define SENSOR_UMIDADE_1 4
 #define SENSOR_UMIDADE_2 13
+
+// Pinos dos atuadores
+#define LUZ 27
 #define BOMBA_AGUA_1 26
 #define BOMBA_AGUA_2 14
 
+// Macros de tempo
+#define INTERVALO_BOMBA 10000 // Milissegundos
+#define INTERVALO_LUZ 10000 // Milissegundos
+#define TEMPO_IRRIGACAO 10000 // Milissegundos
 
-// Parâmetros da planta
-int exposicaoAcumulada = 0;
-int uvMin = 1;
-int uvMax = 5;
-int tempoExposicaoMin = 120;  // tempo minimo para cálculo
-int tempoExposicaoMax = 240;
-int fatorUVlampada = 3;
-unsigned long tempo_ultima_leitura = 0;
+// Parametros da planta
+unsigned umidadeMinimaPlanta = 1000;
+unsigned indiceMinimoUV = 5;
 
 // Wi-Fi
 const char* ssid = "dlink-52EC";
@@ -28,13 +29,15 @@ const char* password = "gkhcp39210";
 
 void setup(){
 
-  pinMode(SENSOR_UMIDADE_1, INPUT);
-  pinMode(BOMBA_AGUA_1, OUTPUT);
-  pinMode(SENSOR_UMIDADE_2, INPUT);
-  pinMode(BOMBA_AGUA_2, OUTPUT);
   pinMode(SENSOR_UV, INPUT);
+  pinMode(SENSOR_UMIDADE_1, INPUT);
+  pinMode(SENSOR_UMIDADE_2, INPUT);
+  
   pinMode(LUZ, OUTPUT);
+  pinMode(BOMBA_AGUA_1, OUTPUT);
+  pinMode(BOMBA_AGUA_2, OUTPUT);
 
+  // Colocando os pinos dos atuadores em HIGH pois os reles sao ativados em LOW
   digitalWrite(LUZ, HIGH);
   digitalWrite(BOMBA_AGUA_1,HIGH);
   digitalWrite(BOMBA_AGUA_2,HIGH);
@@ -60,72 +63,32 @@ void setup(){
 
 }
 
+// Variaveis auxiliares
 bool bomba1Ligada = false;
 bool bomba2Ligada = false;
 bool luzLigada = false;
-unsigned long tempoAtualBomba = millis();
-unsigned long tempoAtualSensorUV = millis();
+bool intervaloBomba1 = false;
+bool intervaloBomba2 = false;
+bool intervaloIluminacao = false;
+unsigned long tempoAtualBomba1;
+
 
 void loop(){
 
-  // Fazer a Leitura dos sensores a cada 10s
-  if (millis() - tempoAtualBomba >= 10000){
-    //Atualizacao do tempo
-    tempoAtualBomba = millis();
-
-    //Leitura do sensor 1 para ver se é necessario ligar a bomba
-    if (analogRead(SENSOR_UMIDADE_1) >= 1000){
-      
-      digitalWrite(BOMBA_AGUA_1, LOW);
-      bomba1Ligada = true;
-
-    }
+  //Faz a leitura somente se o intervalo pos bomba ligada tenha passado
+  if (!intervaloBomba1 && analogRead(SENSOR_UMIDADE_1) <= umidadeMinimaPlanta){
     
-    //Leitura do sensor 1 para ver se é necessario ligar a bomba
-    if (analogRead(SENSOR_UMIDADE_2) >= 1000){
-      
-      digitalWrite(BOMBA_AGUA_2, LOW);
-      bomba2Ligada = true;
-
-    }
-    
-  }
-
-  // Leitura do Sensor UV
-  if ((millis() - tempoAtualSensorUV >= 13000) && !luzLigada){
-    //Atualizacao do tempo
-    tempoAtualSensorUV = millis();
-
-    //Leitura do sensor 1 para ver se é necessario ligar a bomba
-    if (uvReading(SENSOR_UV) <= 5){
-      
-      digitalWrite(LUZ, LOW);
-      luzLigada = true;
-
-    }    
-  }
-
-  // Desligando a bomba caso passe o tempo necessario
-  if ((millis() - tempoAtualBomba >= 5000) && (bomba1Ligada || bomba2Ligada)){
-
-    digitalWrite(BOMBA_AGUA_1, HIGH);
-    bomba1Ligada = false;
-    digitalWrite(BOMBA_AGUA_2, HIGH);
-    bomba2Ligada = false;
-    tempoAtualBomba = millis();
+    // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
+    digitalWrite(BOMBA_AGUA_1, LOW);
+    intervaloBomba1 = true;
+    bomba1Ligada = true;
+    tempoAtualBomba1 = millis();
 
   }
 
-  // Desligado a luz caso passe o tempo
-  if ((millis() - tempoAtualSensorUV >= 5000) && luzLigada){
-
-    digitalWrite(LUZ, HIGH);
-    luzLigada = false;
-    tempoAtualSensorUV = millis();
+  if ((millis() - tempoAtualBomba1 >= TEMPO_IRRIGACAO)){
 
   }
-
-
 
   Serial.print("Umidade sensor 1: ");
   Serial.print(analogRead(SENSOR_UMIDADE_1));
