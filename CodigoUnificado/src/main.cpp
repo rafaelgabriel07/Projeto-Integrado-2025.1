@@ -72,40 +72,41 @@ bool intervaloBomba2 = false;
 bool intervaloIluminacao = false;
 unsigned long tempoAtualBomba1;
 
-
 void loop(){
 
   //Faz a leitura somente se o intervalo pos bomba ligada tenha passado
-  if (!intervaloBomba1 && analogRead(SENSOR_UMIDADE_1) <= umidadeMinimaPlanta){
+  if ((!bomba1Ligada) && (!intervaloBomba1) && analogRead(SENSOR_UMIDADE_1) >= umidadeMinimaPlanta){
     
     // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
     digitalWrite(BOMBA_AGUA_1, LOW);
-    intervaloBomba1 = true;
     bomba1Ligada = true;
     tempoAtualBomba1 = millis();
 
   }
 
-  if ((millis() - tempoAtualBomba1 >= TEMPO_IRRIGACAO)){
+  if (bomba1Ligada && (millis() - tempoAtualBomba1 >= TEMPO_IRRIGACAO)){
+
+    // Desliga a bomba e inicia a contagem no intervalo de medicao
+    digitalWrite(BOMBA_AGUA_1, HIGH);
+    bomba1Ligada = false;
+    intervaloBomba1 = true;
+    tempoAtualBomba1 = millis();
+    
+  }
+
+  if (intervaloBomba1 && (millis() - tempoAtualBomba1 >= INTERVALO_BOMBA)){
+
+    intervaloBomba1 = false;
 
   }
 
   Serial.print("Umidade sensor 1: ");
   Serial.print(analogRead(SENSOR_UMIDADE_1));
   Serial.print(" | ");
-  Serial.print("Umidade sensor 2: ");
-  Serial.print(analogRead(SENSOR_UMIDADE_2));
-  Serial.print(" | ");
-  Serial.print("Sensor luz: ");
-  Serial.print(uvReading(SENSOR_UV));
-  Serial.print(" | ");
   Serial.print("Status bomba 1: ");
   Serial.print(bomba1Ligada ? "Ligada" : "Desligada");
   Serial.print(" | ");
-  Serial.print("Status bomba 2: ");
-  Serial.print(bomba2Ligada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Status luz: ");
-  Serial.println(luzLigada ? "Ligada" : "Desligada");
+  Serial.print("Status intervalo 1: ");
+  Serial.println(intervaloBomba1 ? "Em intervalo" : "Lendo");
 
 }
