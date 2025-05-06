@@ -3,8 +3,8 @@
 #include <WiFi.h>
 #include <time.h>  // Para usar NTP no NodeMCU
 
-#define UV_PIN 25
-#define RELE_PIN 26
+#define SENSOR_UV 15
+#define LUZ 27
 #define INTERVALO_LEITURA 0.1  // Minutos
 #define SENSOR_UMIDADE_1 4
 #define SENSOR_UMIDADE_2 13
@@ -32,10 +32,12 @@ void setup(){
   pinMode(BOMBA_AGUA_1, OUTPUT);
   pinMode(SENSOR_UMIDADE_2, INPUT);
   pinMode(BOMBA_AGUA_2, OUTPUT);
-  pinMode(UV_PIN, INPUT);
-  pinMode(RELE_PIN, OUTPUT);
+  pinMode(SENSOR_UV, INPUT);
+  pinMode(LUZ, OUTPUT);
 
-  digitalWrite(RELE_PIN, LOW);
+  digitalWrite(LUZ, HIGH);
+  digitalWrite(BOMBA_AGUA_1,HIGH);
+  digitalWrite(BOMBA_AGUA_2,HIGH);
 
   Serial.begin(9600);
   Serial.println("Iniciando teste\n");
@@ -60,15 +62,16 @@ void setup(){
 
 bool bomba1Ligada = false;
 bool bomba2Ligada = false;
-bool primeiroLoop = true;
-unsigned long tempoAtual = millis();
+bool luzLigada = false;
+unsigned long tempoAtualBomba = millis();
+unsigned long tempoAtualSensorUV = millis();
 
 void loop(){
 
   // Fazer a Leitura dos sensores a cada 10s
-  if (millis() - tempoAtual >= 10000){
+  if (millis() - tempoAtualBomba >= 10000){
     //Atualizacao do tempo
-    tempoAtual = millis();
+    tempoAtualBomba = millis();
 
     //Leitura do sensor 1 para ver se é necessario ligar a bomba
     if (analogRead(SENSOR_UMIDADE_1) >= 1000){
@@ -88,15 +91,41 @@ void loop(){
     
   }
 
-  if ((millis() - tempoAtual >= 5000) && (bomba1Ligada || bomba2Ligada)){
+  // Leitura do Sensor UV
+  if ((millis() - tempoAtualSensorUV >= 13000) && !luzLigada){
+    //Atualizacao do tempo
+    tempoAtualSensorUV = millis();
+
+    //Leitura do sensor 1 para ver se é necessario ligar a bomba
+    if (uvReading(SENSOR_UV) <= 5){
+      
+      digitalWrite(LUZ, LOW);
+      luzLigada = true;
+
+    }    
+  }
+
+  // Desligando a bomba caso passe o tempo necessario
+  if ((millis() - tempoAtualBomba >= 5000) && (bomba1Ligada || bomba2Ligada)){
 
     digitalWrite(BOMBA_AGUA_1, HIGH);
     bomba1Ligada = false;
     digitalWrite(BOMBA_AGUA_2, HIGH);
     bomba2Ligada = false;
-    tempoAtual = millis();
+    tempoAtualBomba = millis();
 
   }
+
+  // Desligado a luz caso passe o tempo
+  if ((millis() - tempoAtualSensorUV >= 5000) && luzLigada){
+
+    digitalWrite(LUZ, HIGH);
+    luzLigada = false;
+    tempoAtualSensorUV = millis();
+
+  }
+
+
 
   Serial.print("Umidade sensor 1: ");
   Serial.print(analogRead(SENSOR_UMIDADE_1));
@@ -104,11 +133,16 @@ void loop(){
   Serial.print("Umidade sensor 2: ");
   Serial.print(analogRead(SENSOR_UMIDADE_2));
   Serial.print(" | ");
+  Serial.print("Sensor luz: ");
+  Serial.print(uvReading(SENSOR_UV));
+  Serial.print(" | ");
   Serial.print("Status bomba 1: ");
   Serial.print(bomba1Ligada ? "Ligada" : "Desligada");
   Serial.print(" | ");
   Serial.print("Status bomba 2: ");
-  Serial.println(bomba2Ligada ? "Ligada" : "Desligada");
-
+  Serial.print(bomba2Ligada ? "Ligada" : "Desligada");
+  Serial.print(" | ");
+  Serial.print("Status luz: ");
+  Serial.println(luzLigada ? "Ligada" : "Desligada");
 
 }
