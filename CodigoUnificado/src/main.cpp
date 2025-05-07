@@ -17,6 +17,7 @@
 #define INTERVALO_BOMBA 10000 // Milissegundos
 #define INTERVALO_LUZ 10000 // Milissegundos
 #define TEMPO_IRRIGACAO 10000 // Milissegundos
+#define TEMPO_ILUMINACAO 7000 // Millisegundos
 
 // Parametros da planta
 unsigned umidadeMinimaPlanta = 1000;
@@ -71,6 +72,7 @@ bool intervaloBomba1 = false;
 bool intervaloBomba2 = false;
 bool intervaloIluminacao = false;
 unsigned long tempoAtualBomba1;
+unsigned long tempoAtualSensorUV;
 
 void loop(){
 
@@ -100,6 +102,32 @@ void loop(){
 
   }
 
+  // Mesma logica que a de cima porem referente a iluminacao
+  if ((!luzLigada) && (!intervaloIluminacao) && uvReading(SENSOR_UV) >= indiceMinimoUV){
+    
+     
+    digitalWrite(LUZ, LOW);
+    luzLigada = true;
+    tempoAtualSensorUV = millis();
+
+  }
+
+  if (luzLigada && (millis() - tempoAtualSensorUV >= TEMPO_ILUMINACAO)){
+
+    
+    digitalWrite(LUZ, HIGH);
+    luzLigada = false;
+    intervaloIluminacao = true;
+    tempoAtualSensorUV = millis();
+    
+  }
+
+  if (intervaloIluminacao && (millis() - tempoAtualSensorUV >= INTERVALO_BOMBA)){
+
+    intervaloIluminacao = false;
+
+  }
+
   Serial.print("Umidade sensor 1: ");
   Serial.print(analogRead(SENSOR_UMIDADE_1));
   Serial.print(" | ");
@@ -107,6 +135,15 @@ void loop(){
   Serial.print(bomba1Ligada ? "Ligada" : "Desligada");
   Serial.print(" | ");
   Serial.print("Status intervalo 1: ");
-  Serial.println(intervaloBomba1 ? "Em intervalo" : "Lendo");
+  Serial.print(intervaloBomba1 ? "Em intervalo" : "Lendo");
+  Serial.print(" | ");
+  Serial.print("Sensor UV: ");
+  Serial.print(uvReading(SENSOR_UV));
+  Serial.print(" | ");
+  Serial.print("Status iluminacao: ");
+  Serial.print(luzLigada ? "Ligada" : "Desligada");
+  Serial.print(" | ");
+  Serial.print("Status intervalo iluminacao: ");
+  Serial.println(intervaloIluminacao ? "Em intervalo" : "Lendo");
 
 }
