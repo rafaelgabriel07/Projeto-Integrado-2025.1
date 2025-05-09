@@ -17,16 +17,15 @@ class ControleUmidade{
     //Variaveis auxiliares
     bool bombaLigada = false;
     bool intervaloLeitura = false;
-    unsigned long* tempoAtual;
+    unsigned long tempoAtual = millis();
 
-    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima, unsigned long* tempoAtual):
+    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima):
         
         _sensorUmidade(sensorUmidade),
         _bombaAgua(bombaAgua),
         _tempoIrrigacao(tempoIrrigacao), //Em segundos
         _tempoIntervaloLeitura(tempoIntervaloLeitura), //Em segundos
-        _umidadeMinima(umidadeMinima), //Na escala de 0 a 3000 (fazer um map depois)
-        tempoAtual(tempoAtual){} //Em millisegundos
+        _umidadeMinima(umidadeMinima){} //Na escala de 0 a 3000 (fazer um map depois) 
 
     //Faz a configuracao inicial dos sensores e atuadores
     void set(){
@@ -47,26 +46,33 @@ class ControleUmidade{
             // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
             digitalWrite(_bombaAgua, LOW);
             bombaLigada = true;
-            *tempoAtual = millis();
+            tempoAtual = millis();
         
         }
         
-        if (bombaLigada && (millis() - *tempoAtual >= _tempoIrrigacao)){
+        if (bombaLigada && (millis() - tempoAtual >= _tempoIrrigacao*1000)){
         
             // Desliga a bomba e inicia a contagem no intervalo de medicao
             digitalWrite(_bombaAgua, HIGH);
             bombaLigada = false;
             intervaloLeitura = true;
-            *tempoAtual = millis();
+            tempoAtual = millis();
             
         }
         
-        if (intervaloLeitura && (millis() - *tempoAtual >= _tempoIntervaloLeitura*1000)){
+        if (intervaloLeitura && (millis() - tempoAtual >= _tempoIntervaloLeitura*1000)){
         
             intervaloLeitura = false;
         
         }
 
+    }
+
+    int getUmidade(){
+        
+        int umidade = analogRead(_sensorUmidade);
+        return umidade;
+        
     }
 
 };
