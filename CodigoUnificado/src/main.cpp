@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "iluminacao.h"
+#include "controle.hpp"
 #include <WiFi.h>
 #include <time.h>  // Para usar NTP no NodeMCU
 
@@ -14,9 +15,9 @@
 #define BOMBA_AGUA_2 14
 
 // Macros de tempo
-#define INTERVALO_BOMBA 10000 // Milissegundos
+#define INTERVALO_BOMBA 10 // Segundos
 #define INTERVALO_LUZ 10000 // Milissegundos
-#define TEMPO_IRRIGACAO 10000 // Milissegundos
+#define TEMPO_IRRIGACAO 10 // Segundos
 #define TEMPO_ILUMINACAO 7000 // Millisegundos
 
 // Parametros da planta
@@ -27,20 +28,27 @@ unsigned indiceMinimoUV = 5;
 const char* ssid = "dlink-52EC";
 const char* password = "gkhcp39210";
 
+ControleUmidade controleUmidadeVaso1(
+  SENSOR_UMIDADE_1,
+  BOMBA_AGUA_1,
+  TEMPO_IRRIGACAO,
+  INTERVALO_BOMBA,
+  1000
+);
+
 
 void setup(){
 
+  controleUmidadeVaso1.set();
+
   pinMode(SENSOR_UV, INPUT);
-  pinMode(SENSOR_UMIDADE_1, INPUT);
   pinMode(SENSOR_UMIDADE_2, INPUT);
   
   pinMode(LUZ, OUTPUT);
-  pinMode(BOMBA_AGUA_1, OUTPUT);
   pinMode(BOMBA_AGUA_2, OUTPUT);
 
   // Colocando os pinos dos atuadores em HIGH pois os reles sao ativados em LOW
   digitalWrite(LUZ, HIGH);
-  digitalWrite(BOMBA_AGUA_1,HIGH);
   digitalWrite(BOMBA_AGUA_2,HIGH);
 
   Serial.begin(9600);
@@ -65,42 +73,15 @@ void setup(){
 }
 
 // Variaveis auxiliares
-bool bomba1Ligada = false;
 bool bomba2Ligada = false;
 bool luzLigada = false;
-bool intervaloBomba1 = false;
 bool intervaloBomba2 = false;
 bool intervaloIluminacao = false;
-unsigned long tempoAtualBomba1;
 unsigned long tempoAtualSensorUV;
 
 void loop(){
 
-  //Faz a leitura somente se o intervalo pos bomba ligada tenha passado
-  if ((!bomba1Ligada) && (!intervaloBomba1) && analogRead(SENSOR_UMIDADE_1) >= umidadeMinimaPlanta){
-    
-    // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
-    digitalWrite(BOMBA_AGUA_1, LOW);
-    bomba1Ligada = true;
-    tempoAtualBomba1 = millis();
-
-  }
-
-  if (bomba1Ligada && (millis() - tempoAtualBomba1 >= TEMPO_IRRIGACAO)){
-
-    // Desliga a bomba e inicia a contagem no intervalo de medicao
-    digitalWrite(BOMBA_AGUA_1, HIGH);
-    bomba1Ligada = false;
-    intervaloBomba1 = true;
-    tempoAtualBomba1 = millis();
-    
-  }
-
-  if (intervaloBomba1 && (millis() - tempoAtualBomba1 >= INTERVALO_BOMBA)){
-
-    intervaloBomba1 = false;
-
-  }
+  controleUmidadeVaso1.update();
 
   // Mesma logica que a de cima porem referente a iluminacao
   if ((!luzLigada) && (!intervaloIluminacao) && uvReading(SENSOR_UV) >= indiceMinimoUV){
@@ -129,13 +110,13 @@ void loop(){
   }
 
   Serial.print("Umidade sensor 1: ");
-  Serial.print(analogRead(SENSOR_UMIDADE_1));
+  Serial.print(controleUmidadeVaso1.getUmidade());
   Serial.print(" | ");
   Serial.print("Status bomba 1: ");
-  Serial.print(bomba1Ligada ? "Ligada" : "Desligada");
+  Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
   Serial.print(" | ");
   Serial.print("Status intervalo 1: ");
-  Serial.print(intervaloBomba1 ? "Em intervalo" : "Lendo");
+  Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
   Serial.print(" | ");
   Serial.print("Sensor UV: ");
   Serial.print(uvReading(SENSOR_UV));
