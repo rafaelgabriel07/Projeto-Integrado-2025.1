@@ -138,8 +138,8 @@ class ControleUV{
 
         }
 
-        //Caso esteja fora da hora do sol, atraves da exposicao acumulada vemos se precisamos ou nao ligar a luz
-        else{
+        //Caso esteja entre as 18h as 22h ele liga a luz uv se necessario
+        else if (_infoTempo.tm_hour >= 18 && _infoTempo.tm_hour <= 21){
 
             if (_exposicaoAcumulada > _exposicaoMinima){
 
@@ -154,6 +154,15 @@ class ControleUV{
                 luzLigada = false;
 
             }
+
+        }
+
+        //Depois das 22h ele desliga a luz uv (se ainda estiver ligada) e reseta o contador para o dia seguinte as 6h
+        else{
+
+            digitalWrite(_luzUV, LOW);
+            luzLigada = false;
+            _exposicaoAcumulada = 0;
 
         }
 
