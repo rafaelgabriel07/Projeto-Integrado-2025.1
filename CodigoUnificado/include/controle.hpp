@@ -90,19 +90,19 @@ class ControleUV{
     //Parametros da planta
     int _exposicaoMinima;
     int _exposicaoMaxima;
-    int _exposicaoAcumulada = 0;
-
+    
     //Variaveis para adquirir a hora
     struct tm _infoTempo;
     const char* _ntpServer = "pool.ntp.org";
     const long _fusoHorario = -3*3600; //Fuso horario referente ao horario de Brasilia
     const int _horarioDeVerao = 0; //Indicando que nao estamos em horario de verao
-
+    
     
     public:
-
+    
     //Variaveis auxiliares
     bool luzLigada = false;
+    int exposicaoAcumulada = 0;
 
     ControleUV(int sensorUV, int luzUV, int exposicaoMinima, int exposicaoMaxima):
         
@@ -134,21 +134,21 @@ class ControleUV{
         if (_infoTempo.tm_hour <= 17 && _infoTempo.tm_hour >= 6){
             
             float fatorUV = calculoFator(uvReading(_sensorUV));
-            _exposicaoAcumulada += fatorUV;
+            exposicaoAcumulada += fatorUV;
 
         }
 
         //Caso esteja entre as 18h as 22h ele liga a luz uv se necessario
         else if (_infoTempo.tm_hour >= 18 && _infoTempo.tm_hour <= 21){
 
-            if (_exposicaoAcumulada > _exposicaoMinima){
+            if (exposicaoAcumulada > _exposicaoMinima){
 
                 digitalWrite(_luzUV, LOW);
                 luzLigada = true;
 
             }
 
-            else if (_exposicaoAcumulada >= _exposicaoMaxima && luzLigada){
+            else if (exposicaoAcumulada >= _exposicaoMaxima && luzLigada){
 
                 digitalWrite(_luzUV, HIGH);
                 luzLigada = false;
@@ -162,7 +162,7 @@ class ControleUV{
 
             digitalWrite(_luzUV, LOW);
             luzLigada = false;
-            _exposicaoAcumulada = 0;
+            exposicaoAcumulada = 0;
 
         }
 
