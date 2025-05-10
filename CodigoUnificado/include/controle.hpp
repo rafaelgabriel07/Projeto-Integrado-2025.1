@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <time.h>
+#include "iluminacao.h"
 
 class ControleUmidade{
 
@@ -73,6 +75,88 @@ class ControleUmidade{
         int umidade = analogRead(_sensorUmidade);
         return umidade;
         
+    }
+
+};
+
+class ControleUV{
+
+    private:
+    
+    //Variaveis referentes ao sensor e atuador
+    int _sensorUV;
+    int _luzUV;
+
+    //Parametros da planta
+    int _exposicaoMinima;
+    int _exposicaoMaxima;
+    int _exposicaoAcumulada = 0;
+
+    //Variaveis para adquirir a hora
+    struct tm _infoTempo;
+    const char* _ntpServer = "pool.ntp.org";
+    const long _fusoHorario = -3*3600; //Fuso horario referente ao horario de Brasilia
+    const int _horarioDeVerao = 0; //Indicando que nao estamos em horario de verao
+
+    
+    public:
+
+    //Variaveis auxiliares
+    bool luzLigada = false;
+
+    ControleUV(int sensorUV, int luzUV, int exposicaoMinima, int exposicaoMaxima):
+        
+        _sensorUV(sensorUV),
+        _luzUV(luzUV),
+        _exposicaoMinima(exposicaoMinima),
+        _exposicaoMaxima(exposicaoMaxima){}
+
+    void set(){
+
+        //Definindo os pinos dos sensores e atuadores
+        pinMode(_sensorUV, INPUT);
+        pinMode(_luzUV, OUTPUT);
+
+        //Definindo o pino da luz para HIGH, pois a luz e ligada em LOW
+        digitalWrite(_luzUV, HIGH);
+
+        //Configuracao para adquirir o tempo
+        configTime(_fusoHorario, _horarioDeVerao, _ntpServer);
+
+    }
+
+    void update(){
+
+        //Pegando a hora do dia
+        getLocalTime(&_infoTempo);
+
+        //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
+        if (_infoTempo.tm_hour <= 17 && _infoTempo.tm_hour >= 6){
+            
+            float fatorUV = calculoFator(uvReading(_sensorUV));
+            _exposicaoAcumulada += fatorUV;
+
+        }
+
+        //Caso esteja fora da hora do sol, atraves da exposicao acumulada vemos se precisamos ou nao ligar a luz
+        else{
+
+            if (_exposicaoAcumulada > _exposicaoMinima){
+
+                digitalWrite(_luzUV, LOW);
+                luzLigada = true;
+
+            }
+
+            else if (_exposicaoAcumulada >= _exposicaoMaxima && luzLigada){
+
+                digitalWrite(_luzUV, HIGH);
+                luzLigada = false;
+
+            }
+
+        }
+
     }
 
 };
