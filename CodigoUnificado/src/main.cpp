@@ -4,12 +4,12 @@
 #include <WiFi.h>
 
 // Pinos dos sensores
-#define SENSOR_UV 15
-#define SENSOR_UMIDADE_1 4
+#define SENSOR_UV 27
+#define SENSOR_UMIDADE_1 34
 #define SENSOR_UMIDADE_2 13
 
 // Pinos dos atuadores
-#define FONTE_UV_1 27
+#define FONTE_UV_1 32
 #define BOMBA_AGUA_1 26
 #define BOMBA_AGUA_2 14
 
@@ -52,6 +52,8 @@ ControleUV controleUVVaso1(
 );
 
 void setup(){
+  
+  Serial.begin(9600);
 
   // Conecta no Wi-Fi
   WiFi.begin(ssid, password);
@@ -71,7 +73,6 @@ void setup(){
   controleUmidadeVaso2.set();
   controleUVVaso1.set();
 
-  Serial.begin(9600);
   Serial.println("Iniciando teste\n");
 
 }

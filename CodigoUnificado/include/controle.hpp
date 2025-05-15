@@ -43,7 +43,7 @@ class ControleUmidade{
 
     void update(){
 
-        if ((!bombaLigada) && (intervaloLeitura) && analogRead(_sensorUmidade) >= _umidadeMinima){
+        if ((!bombaLigada) && (!intervaloLeitura) && analogRead(_sensorUmidade) >= _umidadeMinima){
     
             // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
             digitalWrite(_bombaAgua, LOW);
@@ -94,7 +94,7 @@ class ControleUV{
     //Variaveis para adquirir a hora
     struct tm _infoTempo;
     const char* _ntpServer = "pool.ntp.org";
-    const long _fusoHorario = -3*3600; //Fuso horario referente ao horario de Brasilia
+    const long _fusoHorario = -6*3600; //Fuso horario referente ao horario de Brasilia
     const int _horarioDeVerao = 0; //Indicando que nao estamos em horario de verao
     
     
@@ -129,6 +129,7 @@ class ControleUV{
 
         //Pegando a hora do dia
         getLocalTime(&_infoTempo);
+        Serial.println(_infoTempo.tm_hour);
 
         //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
         if (_infoTempo.tm_hour <= 17 && _infoTempo.tm_hour >= 6){
@@ -141,14 +142,14 @@ class ControleUV{
         //Caso esteja entre as 18h as 22h ele liga a luz uv se necessario
         else if (_infoTempo.tm_hour >= 18 && _infoTempo.tm_hour <= 21){
 
-            if (exposicaoAcumulada > _exposicaoMinima){
+            if (exposicaoAcumulada < _exposicaoMinima){
 
                 digitalWrite(_luzUV, LOW);
                 luzLigada = true;
 
             }
 
-            else if (exposicaoAcumulada >= _exposicaoMaxima && luzLigada){
+            else if ((exposicaoAcumulada >= _exposicaoMaxima) && luzLigada){
 
                 digitalWrite(_luzUV, HIGH);
                 luzLigada = false;
