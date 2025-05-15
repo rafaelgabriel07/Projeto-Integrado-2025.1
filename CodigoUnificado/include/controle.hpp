@@ -13,6 +13,8 @@ class ControleUmidade{
     unsigned int _tempoIrrigacao;
     int _tempoIntervaloLeitura;
     int _umidadeMinima;
+    int _leituraMaxima;
+    int _leituraMinima;
     
     public:
     
@@ -20,14 +22,17 @@ class ControleUmidade{
     bool bombaLigada = false;
     bool intervaloLeitura = false;
     unsigned long tempoAtual = millis();
+    int leituraConvertida;
 
-    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima):
+    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima, int leituraMinima, int leituraMaxima):
         
         _sensorUmidade(sensorUmidade),
         _bombaAgua(bombaAgua),
         _tempoIrrigacao(tempoIrrigacao), //Em segundos
         _tempoIntervaloLeitura(tempoIntervaloLeitura), //Em segundos
-        _umidadeMinima(umidadeMinima){} //Na escala de 0 a 3000 (fazer um map depois) 
+        _umidadeMinima(umidadeMinima), //Na escala de 0 a 100
+        _leituraMaxima(leituraMaxima),
+        _leituraMinima(leituraMinima){}  
 
     //Faz a configuracao inicial dos sensores e atuadores
     void set(){
@@ -43,7 +48,9 @@ class ControleUmidade{
 
     void update(){
 
-        if ((!bombaLigada) && (!intervaloLeitura) && analogRead(_sensorUmidade) >= _umidadeMinima){
+        leituraConvertida = map(analogRead(_sensorUmidade), _leituraMaxima, _leituraMinima, 0, 100);
+
+        if ((!bombaLigada) && (!intervaloLeitura) && leituraConvertida <= _umidadeMinima){
     
             // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
             digitalWrite(_bombaAgua, LOW);
@@ -72,7 +79,7 @@ class ControleUmidade{
 
     int getUmidade(){
         
-        int umidade = analogRead(_sensorUmidade);
+        int umidade = leituraConvertida;
         return umidade;
         
     }
@@ -129,7 +136,6 @@ class ControleUV{
 
         //Pegando a hora do dia
         getLocalTime(&_infoTempo);
-        Serial.println(_infoTempo.tm_hour);
 
         //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
         if (_infoTempo.tm_hour <= 17 && _infoTempo.tm_hour >= 6){
