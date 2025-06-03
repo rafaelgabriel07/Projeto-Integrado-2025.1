@@ -1,10 +1,16 @@
 #include "iluminacao.h"
-#include <WiFi.h>
-#include <time.h>  // Para usar NTP no NodeMCU
+#include <DS1302.h>  
 
 #define UV_PIN 25
 #define RELE_PIN 26
 #define INTERVALO_LEITURA 0.1  // Minutos
+
+// RTC - Novos pinos (sem conflito)
+#define RST_PIN 13
+#define DAT_PIN 14
+#define CLK_PIN 27
+
+DS1302 rtc(RST_PIN, DAT_PIN, CLK_PIN);
 
 // Parâmetros da planta
 int exposicaoAcumulada = 0;
@@ -13,97 +19,77 @@ int uvMax = 5;
 int tempoExposicaoMin = 120;  // tempo minimo para cálculo
 int tempoExposicaoMax = 240;
 
-int fatorUVlampada = 3;
+int fatorUVLampada = 3;
 
 unsigned long tempo_ultima_leitura = 0;
 
-// Wi-Fi
-const char* ssid = "CEPEL-GUEST";
-const char* password = "cepel51anos";
-
 void setup() {
-
-  //Definição dos pinos e setando o Relé pra zero
   pinMode(UV_PIN, INPUT);
   pinMode(RELE_PIN, OUTPUT);
   digitalWrite(RELE_PIN, LOW);
 
   Serial.begin(9600);
 
-  // Conecta no Wi-Fi
-  WiFi.begin(ssid, password);
-  Serial.print("Conectando ao WiFi...");
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
-    delay(500);
-    Serial.print(".");
-  }
-  //Após passar muito tempo tentando conectar, reinicia o ESP
-  if (WiFi.status() != WL_CONNECTED) ESP.restart();
+  // Inicia o RTC
+  rtc.init();
 
-  Serial.println("Conectado!");
+  // ⚠️ Ajuste manual da hora se necessário — execute apenas uma vez
+  // rtc.setDate(DIA, MES, ANO); rtc.setTime(HORA, MIN, SEG);
+  // rtc.setDate(2, 6, 2025); rtc.setTime(15, 45, 0);  // Exemplo
 
-  // Configura NTP
-  configTime(-3 * 3600, 0, "pool.ntp.org");  // GMT-3 para o Brasil (horário padrão)
+  Serial.println("Sistema iniciado com RTC DS1302.");
 }
 
 void loop() {
   unsigned long tempo_atual = millis();
 
-  //Obter a hora atual
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Falha ao obter o tempo");
-    delay(1000);
-    return;
-  }
+  // get the current time
+  Ds1302::DateTime now;
+  rtc.getDateTime(&now);
 
-  int hora = timeinfo.tm_hour;
-  int minuto = timeinfo.tm_min;
+  int hora = now.hour;
+  int minuto = now.minute;
 
-  //Realiza a leitura a cada um intervalo de leitura
+  int ano = now.year;
+  int mes = now.month;
+  int dia = now.day;
+
+  //Realiza a leitura a cada INTERVALO_LEITURA minutos
   if (tempo_atual - tempo_ultima_leitura >= INTERVALO_LEITURA * 60000) {
     tempo_ultima_leitura = tempo_atual;
 
+    Serial.print("Hora atual: ");
+    Serial.println(hora + ":" + minuto);
+    Serial.print("Data: ");
+    Serial.println(dia + "/" + mes + "/" ano);
+
     if (hora >= 5 && hora < 18) {
-      //Calculo do fator uv recebido no sensor
       int indiceUV = uvReading(UV_PIN);
       float fatorUV = calculoFator(indiceUV);
 
-      Serial.print("Hora atual: ");
-      Serial.print(hora);
-      Serial.print(":");
-      Serial.println(minuto);
-      Serial.print("Indice UV: ");
+      Serial.print("Índice UV: ");
       Serial.println(indiceUV);
 
-      //Calculo da exposição em função do fatorUV
-      //Se o relé estiver ligado, o uv utilizado na conta é o da lampada
       if (digitalRead(RELE_PIN)) {
         exposicaoAcumulada += INTERVALO_LEITURA * fatorUVLampada;
       } else {
-        exposicaoAcumulada += INTERVALO_LEITURA * fatorUV;  // acumula exposição diária ponderada
+        exposicaoAcumulada += INTERVALO_LEITURA * fatorUV;
       }
 
-      //Verifica se o UV está dentro dos limites da planta
-      //UV alto envia mensagem de perigo
       if (fatorUV > uvMax) {
-        Serial.println("Indice UV muito alto para esta planta, coloque-a em ambiente menos ensolarado!");
-        //UV baixo aciona o RELE
+        Serial.println("Índice UV muito alto para esta planta, coloque-a em ambiente menos ensolarado!");
       } else if (fatorUV < uvMin) {
-        Serial.println("Indice UV muito baixo, acionando relé...");
+        Serial.println("Índice UV muito baixo, acionando relé...");
         if (!digitalRead(RELE_PIN)) digitalWrite(RELE_PIN, HIGH);
-        //Em casos normais, mantem a lampada desligada
       } else {
-        Serial.println("Indice UV nos parâmetros ideais.");
+        Serial.println("Índice UV nos parâmetros ideais.");
         digitalWrite(RELE_PIN, LOW);
       }
     }
 
-    // Após as 18h — decide se liga a luz artificial caso não tenha atingido o tempo de exposição
     if (hora >= 18 && hora < 24) {
       if (exposicaoAcumulada < tempoExposicaoMin) {
-        digitalWrite(RELE_PIN, HIGH);  // liga luz artificial
+        digitalWrite(RELE_PIN, HIGH);
         Serial.println("Ligando luz artificial para compensar falta de sol.");
         exposicaoAcumulada += INTERVALO_LEITURA * fatorUVLampada;
       } else {
@@ -112,15 +98,13 @@ void loop() {
       }
     }
 
-    // Entre 0h e 5h — espera até amanhecer
     if (hora >= 0 && hora < 5) {
-      digitalWrite(RELE_PIN, LOW);  // garante que está desligado
+      digitalWrite(RELE_PIN, LOW);
       if (exposicaoAcumulada < tempoExposicaoMin) {
         Serial.println("Dose solar diária não atingida ontem!");
       }
     }
 
-    // 🌅 Às 5h — zera a dose diária e recomeça a leitura
     if (hora == 5 && minuto == 0) {
       exposicaoAcumulada = 0;
       Serial.println("Novo dia! Resetando exposição acumulada.");
