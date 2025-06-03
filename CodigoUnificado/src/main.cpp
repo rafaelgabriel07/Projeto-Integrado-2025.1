@@ -1,12 +1,15 @@
 #include <Arduino.h>
+#include <RtcDS1302.h>
 #include "iluminacao.h"
 #include "controle.hpp"
-#include <WiFi.h>
 
 // Pinos dos sensores
 #define SENSOR_UV 27
 #define SENSOR_UMIDADE_1 34
 #define SENSOR_UMIDADE_2 33
+#define RTC_CLK 5 //DEFINIR O PINO
+#define RTC_DAT 4 //DEFINIR O PINO
+#define RTC_RST 3 //DEFINIR O PINO
 
 // Pinos dos atuadores
 #define FONTE_UV_1 21
@@ -28,10 +31,6 @@
 unsigned umidadeMinimaPlanta = 50;
 unsigned indiceMinimoUV = 5;
 unsigned indiceMaximoUV = 10;
-
-// Wi-Fi
-const char* ssid = "dlink-52EC";
-const char* password = "gkhcp39210";
 
 ControleUmidade controleUmidadeVaso1(
   SENSOR_UMIDADE_1,
@@ -67,22 +66,17 @@ ControleUV controleUVVaso2(
   indiceMaximoUV
 );
 
+ThreeWire myWire(RTC_DAT, RTC_CLK, RTC_RST); 
+RtcDS1302<ThreeWire> Rtc(myWire);
+
 void setup(){
   
   Serial.begin(9600);
 
-  // Conecta no Wi-Fi
-  WiFi.begin(ssid, password);
-  Serial.print("Conectando ao WiFi...");
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  //Após passar muito tempo tentando conectar, reinicia o ESP
-  if (WiFi.status() != WL_CONNECTED) ESP.restart();
-  Serial.println("Conectado!");
+  //Iniciando o RTC
+  Rtc.Begin();
+  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+  Rtc.SetDateTime(compiled);
 
   //Iniciando o controle de umidade e uv dos vasos
   controleUmidadeVaso1.set();
@@ -96,11 +90,13 @@ void setup(){
 
 void loop(){
 
+  RtcDateTime now = Rtc.GetDateTime();
+
   //Inicia a verificacao dos parametros de cada vaso
   controleUmidadeVaso1.update();
   controleUmidadeVaso2.update();
-  controleUVVaso1.update();
-  controleUVVaso2.update();
+  controleUVVaso1.update(now);
+  controleUVVaso2.update(now);
 
   Serial.print("Umidade sensor 1: ");
   Serial.print(controleUmidadeVaso1.getUmidade());
