@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <RtcDS1302.h>
 #include <time.h>
 #include "iluminacao.h"
 
@@ -132,13 +133,10 @@ class ControleUV{
 
     }
 
-    void update(){
-
-        //Pegando a hora do dia
-        getLocalTime(&_infoTempo);
+    void update(RtcDateTime dt){
 
         //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
-        if (_infoTempo.tm_hour <= 17 && _infoTempo.tm_hour >= 6){
+        if (dt.Hour() <= 17 && dt.Hour() >= 6){
             
             float fatorUV = calculoFator(uvReading(_sensorUV));
             exposicaoAcumulada += fatorUV;
@@ -146,7 +144,7 @@ class ControleUV{
         }
 
         //Caso esteja entre as 18h as 22h ele liga a luz uv se necessario
-        else if (_infoTempo.tm_hour >= 18 && _infoTempo.tm_hour <= 21){
+        else if (dt.Hour() >= 18 && dt.Hour() <= 21){
 
             if (exposicaoAcumulada < _exposicaoMinima){
 
