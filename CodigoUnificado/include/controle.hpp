@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <RtcDS1302.h>
-#include <time.h>
 #include "iluminacao.h"
 
 class ControleUmidade{
