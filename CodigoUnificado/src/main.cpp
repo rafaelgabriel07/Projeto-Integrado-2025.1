@@ -7,9 +7,9 @@
 #define SENSOR_UV 27
 #define SENSOR_UMIDADE_1 34
 #define SENSOR_UMIDADE_2 33
-#define RTC_CLK 5 //DEFINIR O PINO
-#define RTC_DAT 4 //DEFINIR O PINO
-#define RTC_RST 3 //DEFINIR O PINO
+#define RTC_CLK 5 
+#define RTC_DAT 18
+#define RTC_RST 19
 
 // Pinos dos atuadores
 #define FONTE_UV_1 21
@@ -83,6 +83,8 @@ void setup(){
 
   //Iniciando o RTC
   Rtc.Begin();
+
+  //DESCOMENTAR CAS SEJA A PRIMEIRA VEZ USANDO O RTC
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   Rtc.SetDateTime(compiled);
 
@@ -109,7 +111,7 @@ void loop(){
     controleUmidadeVaso2.update();
     controleUVVaso1.update(now, INTERVALO_LEITURA);
     controleUVVaso2.update(now, INTERVALO_LEITURA);
-
+/*
     Serial.print("Umidade sensor 1: ");
     Serial.print(controleUmidadeVaso1.getUmidade());
     Serial.print(" | ");
@@ -139,6 +141,6 @@ void loop(){
     Serial.print(" | ");
     Serial.print("Status iluminacao 2: ");
     Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
-
+*/
   }
 }
