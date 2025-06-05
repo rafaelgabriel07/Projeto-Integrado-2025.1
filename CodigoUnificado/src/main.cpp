@@ -105,7 +105,7 @@ void loop(){
   controleUmidadeVaso2.update();
   controleUVVaso1.update(now);
   controleUVVaso2.update(now);
-/*
+
   Serial.print("Umidade sensor 1: ");
   Serial.print(controleUmidadeVaso1.getUmidade());
   Serial.print(" | ");
@@ -135,5 +135,5 @@ void loop(){
   Serial.print(" | ");
   Serial.print("Status iluminacao 2: ");
   Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
-*/
+
 }

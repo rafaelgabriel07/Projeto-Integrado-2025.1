@@ -132,10 +132,10 @@ class ControleUV{
     void update(RtcDateTime dt){
 
         float fatorUV = 0.0;
-        Serial.print("Hora:");
-        Serial.print(dt.Hour());
-        Serial.print(" | Exposição acumulada: ");
-        Serial.println(exposicaoAcumulada);
+        //Serial.print("Hora:");
+        //Serial.print(dt.Hour());
+        //Serial.print(" | Exposição acumulada: ");
+        //Serial.println(exposicaoAcumulada);
 
         if (millis() - tempoAtual >= _intervaloDeLeitura*60000){
             tempoAtual = millis();
@@ -158,12 +158,11 @@ class ControleUV{
                     fatorUV = calculoFator(uvReading(_sensorUV));
                     exposicaoAcumulada += _intervaloDeLeitura * _fatorUVLampada;
 
-                }
-
-                else if ((exposicaoAcumulada >= _exposicaoMinima) && luzLigada){
-
-                    digitalWrite(_luzUV, HIGH);
-                    luzLigada = false;
+                    // Verificar se ja chegou na exposicao acumulada minima
+                    if (exposicaoAcumulada >= _exposicaoMinima){
+                        digitalWrite(_luzUV, HIGH);
+                        luzLigada = false;
+                    }
 
                 }
 
