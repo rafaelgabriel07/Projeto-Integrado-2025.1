@@ -7,9 +7,9 @@
 #define SENSOR_UV 27
 #define SENSOR_UMIDADE_1 34
 #define SENSOR_UMIDADE_2 33
-#define RTC_CLK 5 
+#define RTC_CLK 19
 #define RTC_DAT 18
-#define RTC_RST 19
+#define RTC_RST 5
 
 // Pinos dos atuadores
 #define FONTE_UV_1 21
@@ -19,7 +19,7 @@
 
 // Macros de tempo
 #define INTERVALO_BOMBA 10 // Segundos
-#define INTERVALO_LUZ 60 // Segundos
+#define INTERVALO_LUZ 1 // Minutos
 #define TEMPO_IRRIGACAO 10 // Segundos
 
 // Parametros da planta
@@ -33,9 +33,6 @@ unsigned indiceMaximoUV = 10;
 
 #define FATOR_UV_LAMPADA 3 // Fator de exposicao da lampada UV
 
-//Parâmetros para o intervalo de leitura dos sensores
-#define INTERVALO_LEITURA 1  // Em minutos
-unsigned long tempo_ultima_leitura = 0;
 
 ControleUmidade controleUmidadeVaso1(
   SENSOR_UMIDADE_1,
@@ -86,8 +83,8 @@ void setup(){
   Rtc.Begin();
 
   //DESCOMENTAR CAS SEJA A PRIMEIRA VEZ USANDO O RTC
-  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-  Rtc.SetDateTime(compiled);
+  //RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+  //Rtc.SetDateTime(compiled);
 
   //Iniciando o controle de umidade e uv dos vasos
   controleUmidadeVaso1.set();
@@ -100,16 +97,14 @@ void setup(){
 }
 
 void loop(){
-  unsigned long tempo_atual = millis();
 
   RtcDateTime now = Rtc.GetDateTime();
-  
+
   //Inicia a verificacao dos parametros de cada vaso
   controleUmidadeVaso1.update();
   controleUmidadeVaso2.update();
   controleUVVaso1.update(now);
   controleUVVaso2.update(now);
-
 /*
   Serial.print("Umidade sensor 1: ");
   Serial.print(controleUmidadeVaso1.getUmidade());
@@ -141,5 +136,4 @@ void loop(){
   Serial.print("Status iluminacao 2: ");
   Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
 */
-
 }

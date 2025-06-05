@@ -11,7 +11,7 @@ class ControleUmidade{
     int _sensorUmidade;
     int _bombaAgua;
     unsigned int _tempoIrrigacao;
-    int _tempo_intervaloDeLeitura;
+    int _tempoIntervaloLeitura;
     int _umidadeMinima;
     int _leituraMaxima;
     int _leituraMinima;
@@ -20,16 +20,16 @@ class ControleUmidade{
     
     //Variaveis auxiliares
     bool bombaLigada = false;
-    bool _intervaloDeLeitura = false;
+    bool intervaloLeitura = false;
     unsigned long tempoAtual = millis();
     int leituraConvertida;
 
-    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempo_intervaloDeLeitura, int umidadeMinima, int leituraMinima, int leituraMaxima):
+    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima, int leituraMinima, int leituraMaxima):
         
         _sensorUmidade(sensorUmidade),
         _bombaAgua(bombaAgua),
         _tempoIrrigacao(tempoIrrigacao), //Em segundos
-        _tempo_intervaloDeLeitura(tempo_intervaloDeLeitura), //Em segundos
+        _tempoIntervaloLeitura(tempoIntervaloLeitura), //Em segundos
         _umidadeMinima(umidadeMinima), //Na escala de 0 a 100
         _leituraMaxima(leituraMaxima),
         _leituraMinima(leituraMinima){}  
@@ -50,7 +50,7 @@ class ControleUmidade{
 
         leituraConvertida = map(analogRead(_sensorUmidade), _leituraMaxima, _leituraMinima, 0, 100);
 
-        if ((!bombaLigada) && (!_intervaloDeLeitura) && leituraConvertida <= _umidadeMinima){
+        if ((!bombaLigada) && (!intervaloLeitura) && leituraConvertida <= _umidadeMinima){
     
             // Ativamos a bomba caso a umidade esteja menor que a umidade minima  
             digitalWrite(_bombaAgua, LOW);
@@ -64,14 +64,14 @@ class ControleUmidade{
             // Desliga a bomba e inicia a contagem no intervalo de medicao
             digitalWrite(_bombaAgua, HIGH);
             bombaLigada = false;
-            _intervaloDeLeitura = true;
+            intervaloLeitura = true;
             tempoAtual = millis();
             
         }
         
-        if (_intervaloDeLeitura && (millis() - tempoAtual >= _tempo_intervaloDeLeitura*1000)){
+        if (intervaloLeitura && (millis() - tempoAtual >= _tempoIntervaloLeitura*1000)){
         
-            _intervaloDeLeitura = false;
+            intervaloLeitura = false;
         
         }
 
@@ -101,15 +101,7 @@ class ControleUV{
 
     //Fator de exposicao da lampada UV
     int _fatorUVLampada;
-    
-    
-    //Variaveis para adquirir a hora
-    struct tm _infoTempo;
-    const char* _ntpServer = "pool.ntp.org";
-    const long _fusoHorario = -6*3600; //Fuso horario referente ao horario de Brasilia
-    const int _horarioDeVerao = 0; //Indicando que nao estamos em horario de verao
-    
-    
+        
     public:
     
     //Variaveis auxiliares
@@ -135,20 +127,20 @@ class ControleUV{
         //Definindo o pino da luz para HIGH, pois a luz e ligada em LOW
         digitalWrite(_luzUV, HIGH);
 
-        //Configuracao para adquirir o tempo
-        configTime(_fusoHorario, _horarioDeVerao, _ntpServer);
-
     }
 
     void update(RtcDateTime dt){
 
         float fatorUV = 0.0;
+        Serial.print("Hora:");
+        Serial.print(dt.Hour());
+        Serial.print(" | Exposição acumulada: ");
+        Serial.println(exposicaoAcumulada);
 
-        if (millis() - tempoAtual >= _intervaloDeLeitura*1000){
-
+        if (millis() - tempoAtual >= _intervaloDeLeitura*60000){
             tempoAtual = millis();
 
-            // Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
+            //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
             if (dt.Hour() <= 17 && dt.Hour() >= 6){
 
                 fatorUV = calculoFator(uvReading(_sensorUV));
@@ -164,15 +156,14 @@ class ControleUV{
                     digitalWrite(_luzUV, LOW);
                     luzLigada = true;
                     fatorUV = calculoFator(uvReading(_sensorUV));
-                    exposicaoAcumulada += _intervaloDeLeitura * fatorUV;
+                    exposicaoAcumulada += _intervaloDeLeitura * _fatorUVLampada;
 
                 }
 
-                else if ((exposicaoAcumulada >= _exposicaoMaxima) && luzLigada){
+                else if ((exposicaoAcumulada >= _exposicaoMinima) && luzLigada){
 
                     digitalWrite(_luzUV, HIGH);
                     luzLigada = false;
-                    exposicaoAcumulada += _intervaloDeLeitura * _fatorUVLampada;
 
                 }
 
