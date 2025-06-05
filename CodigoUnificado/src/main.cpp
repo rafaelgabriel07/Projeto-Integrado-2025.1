@@ -32,6 +32,12 @@ unsigned umidadeMinimaPlanta = 50;
 unsigned indiceMinimoUV = 5;
 unsigned indiceMaximoUV = 10;
 
+#define FATOR_UV_LAMPADA 3 // Fator de exposicao da lampada UV
+
+//Parâmetros para o intervalo de leitura dos sensores
+#define INTERVALO_LEITURA 1  // Em minutos
+unsigned long tempo_ultima_leitura = 0;
+
 ControleUmidade controleUmidadeVaso1(
   SENSOR_UMIDADE_1,
   BOMBA_AGUA_1,
@@ -56,14 +62,16 @@ ControleUV controleUVVaso1(
   SENSOR_UV,
   FONTE_UV_1,
   indiceMinimoUV,
-  indiceMaximoUV
+  indiceMaximoUV,
+  FATOR_UV_LAMPADA
 );
 
 ControleUV controleUVVaso2(
   SENSOR_UV,
   FONTE_UV_2,
   indiceMinimoUV,
-  indiceMaximoUV
+  indiceMaximoUV,
+  FATOR_UV_LAMPADA
 );
 
 ThreeWire myWire(RTC_DAT, RTC_CLK, RTC_RST); 
@@ -89,43 +97,48 @@ void setup(){
 }
 
 void loop(){
+  unsigned long tempo_atual = millis();
 
   RtcDateTime now = Rtc.GetDateTime();
 
-  //Inicia a verificacao dos parametros de cada vaso
-  controleUmidadeVaso1.update();
-  controleUmidadeVaso2.update();
-  controleUVVaso1.update(now);
-  controleUVVaso2.update(now);
+  if (tempo_atual - tempo_ultima_leitura >= INTERVALO_LEITURA * 60000) {
+    tempo_ultima_leitura = tempo_atual;
 
-  Serial.print("Umidade sensor 1: ");
-  Serial.print(controleUmidadeVaso1.getUmidade());
-  Serial.print(" | ");
-  Serial.print("Status bomba 1: ");
-  Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Status intervalo 1: ");
-  Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
-  Serial.print(" | ");
-  Serial.print("Umidade sensor 2: ");
-  Serial.print(controleUmidadeVaso2.getUmidade());
-  Serial.print(" | ");
-  Serial.print("Status bomba 2: ");
-  Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Status intervalo 2: ");
-  Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
-  Serial.print(" | ");
-  Serial.print("Exposicao acumulada vaso 1: ");
-  Serial.print(controleUVVaso1.exposicaoAcumulada);
-  Serial.print(" | ");
-  Serial.print("Status iluminacao 1: ");
-  Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Exposicao acumulada vaso 2: ");
-  Serial.print(controleUVVaso2.exposicaoAcumulada);
-  Serial.print(" | ");
-  Serial.print("Status iluminacao 2: ");
-  Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+    //Inicia a verificacao dos parametros de cada vaso
+    controleUmidadeVaso1.update();
+    controleUmidadeVaso2.update();
+    controleUVVaso1.update(now, INTERVALO_LEITURA);
+    controleUVVaso2.update(now, INTERVALO_LEITURA);
 
+    Serial.print("Umidade sensor 1: ");
+    Serial.print(controleUmidadeVaso1.getUmidade());
+    Serial.print(" | ");
+    Serial.print("Status bomba 1: ");
+    Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
+    Serial.print(" | ");
+    Serial.print("Status intervalo 1: ");
+    Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
+    Serial.print(" | ");
+    Serial.print("Umidade sensor 2: ");
+    Serial.print(controleUmidadeVaso2.getUmidade());
+    Serial.print(" | ");
+    Serial.print("Status bomba 2: ");
+    Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
+    Serial.print(" | ");
+    Serial.print("Status intervalo 2: ");
+    Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
+    Serial.print(" | ");
+    Serial.print("Exposicao acumulada vaso 1: ");
+    Serial.print(controleUVVaso1.exposicaoAcumulada);
+    Serial.print(" | ");
+    Serial.print("Status iluminacao 1: ");
+    Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
+    Serial.print(" | ");
+    Serial.print("Exposicao acumulada vaso 2: ");
+    Serial.print(controleUVVaso2.exposicaoAcumulada);
+    Serial.print(" | ");
+    Serial.print("Status iluminacao 2: ");
+    Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+
+  }
 }

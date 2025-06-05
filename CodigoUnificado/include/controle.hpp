@@ -97,6 +97,10 @@ class ControleUV{
     //Parametros da planta
     int _exposicaoMinima;
     int _exposicaoMaxima;
+
+    //Fator de exposicao da lampada UV
+    int _fatorUVLampada;
+    
     
     //Variaveis para adquirir a hora
     struct tm _infoTempo;
@@ -111,10 +115,11 @@ class ControleUV{
     bool luzLigada = false;
     int exposicaoAcumulada = 0;
 
-    ControleUV(int sensorUV, int luzUV, int exposicaoMinima, int exposicaoMaxima):
+    ControleUV(int sensorUV, int luzUV, int exposicaoMinima, int exposicaoMaxima, int fatorUVLampada):
         
         _sensorUV(sensorUV),
         _luzUV(luzUV),
+        _fatorUVLampada(fatorUVLampada),
         _exposicaoMinima(exposicaoMinima),
         _exposicaoMaxima(exposicaoMaxima){}
 
@@ -132,13 +137,15 @@ class ControleUV{
 
     }
 
-    void update(RtcDateTime dt){
+    void update(RtcDateTime dt, int intervaloLeitura){
+
+        float fatorUV = 0.0;
 
         //Verifica se estamos dentro do horario de sol ainda (entre as 6h as 18h)
         if (dt.Hour() <= 17 && dt.Hour() >= 6){
             
-            float fatorUV = calculoFator(uvReading(_sensorUV));
-            exposicaoAcumulada += fatorUV;
+            fatorUV = calculoFator(uvReading(_sensorUV));
+            exposicaoAcumulada += intervaloLeitura * fatorUV;
 
         }
 
@@ -149,6 +156,8 @@ class ControleUV{
 
                 digitalWrite(_luzUV, LOW);
                 luzLigada = true;
+                fatorUV = calculoFator(uvReading(_sensorUV));
+                exposicaoAcumulada += intervaloLeitura * fatorUV;
 
             }
 
@@ -156,6 +165,7 @@ class ControleUV{
 
                 digitalWrite(_luzUV, HIGH);
                 luzLigada = false;
+                exposicaoAcumulada += intervaloLeitura * _fatorUVLampada;
 
             }
 
