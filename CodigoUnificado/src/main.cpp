@@ -10,7 +10,7 @@ const char* ssid = "dlink-52EC";
 const char* password = "glhcp39210";
 
 // Servidor (IP MUDA A DEPENDER DO COMPUTADOR)
-const char* serverName = "http://SEU_IPPPP:8000/dados";
+const char* serverUrl = "http://SEU_IPPPP:8000/dados";
 
 // Pinos dos sensores
 #define SENSOR_UV 27
@@ -78,9 +78,33 @@ ControleUV controleUVVaso2(
 ThreeWire myWire(RTC_DAT, RTC_CLK, RTC_RST); 
 RtcDS1302<ThreeWire> Rtc(myWire);
 
+// Variaveis para manipular os dados do site
+HTTPClient http;
+int httpResponseCode;
+
 void setup(){
   
   Serial.begin(9600);
+
+  // Conecta ao Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Conectando ao WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+
+  }
+
+  http.begin(serverUrl);
+
+  httpResponseCode = http.GET();
+
+  while (httpResponseCode != 200){
+    Serial.println("Esperando informações das plantas");
+  }
+
+  Serial.println(http.getString());
+  delay(10000);
 
   //Iniciando o RTC
   Rtc.Begin();
@@ -100,6 +124,8 @@ void setup(){
 }
 
 void loop(){
+
+
 
   RtcDateTime now = Rtc.GetDateTime();
 
