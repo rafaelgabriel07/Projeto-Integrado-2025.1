@@ -24,18 +24,20 @@ class ControleUmidade{
     unsigned long tempoAtual = millis();
     int leituraConvertida;
 
-    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int umidadeMinima, int leituraMinima, int leituraMaxima):
+    ControleUmidade(int sensorUmidade, int bombaAgua, unsigned int tempoIrrigacao, int tempoIntervaloLeitura, int leituraMinima, int leituraMaxima):
         
         _sensorUmidade(sensorUmidade),
         _bombaAgua(bombaAgua),
         _tempoIrrigacao(tempoIrrigacao), //Em segundos
         _tempoIntervaloLeitura(tempoIntervaloLeitura), //Em segundos
-        _umidadeMinima(umidadeMinima), //Na escala de 0 a 100
         _leituraMaxima(leituraMaxima),
         _leituraMinima(leituraMinima){}  
 
     //Faz a configuracao inicial dos sensores e atuadores
-    void set(){
+    void set(int umidadeMinima){
+
+        //Definindo quantidade minima de umidade
+        _umidadeMinima = umidadeMinima;
 
         //Definindo os pinos
         pinMode(_sensorUmidade, INPUT);
@@ -109,16 +111,18 @@ class ControleUV{
     int exposicaoAcumulada = 0;
     unsigned long tempoAtual = millis();
 
-    ControleUV(int sensorUV, int luzUV, int exposicaoMinima, int exposicaoMaxima, int fatorUVLampada, int intervaloDeLeitura):
+    ControleUV(int sensorUV, int luzUV, int fatorUVLampada, int intervaloDeLeitura):
         
         _sensorUV(sensorUV),
         _luzUV(luzUV),
         _fatorUVLampada(fatorUVLampada),
-        _exposicaoMinima(exposicaoMinima),
-        _exposicaoMaxima(exposicaoMaxima),
         _intervaloDeLeitura(intervaloDeLeitura){}
 
-    void set(){
+    void set(int exposicaoMinima, int exposicaoMaxima){
+
+        //Definindo a exposicao minima e maxima
+        _exposicaoMaxima = exposicaoMaxima;
+        _exposicaoMinima = exposicaoMinima;
 
         //Definindo os pinos dos sensores e atuadores
         pinMode(_sensorUV, INPUT);
