@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- O título agora reflete ambas as funcionalidades -->
+    <title>Controle de Informação e Busca de Plantas 🌿</title>
+    <!-- Inclui o arquivo CSS usando url_for para referenciar o caminho estático -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+      
+        <!-- Seção de Busca de Plantas (do seu primeiro HTML) -->
+        <h1>Busca de Plantas 🌱</h1>
+        <input type="text" id="searchInput" placeholder="Buscar planta..." autocomplete="off" />
+        <ul id="dropdown" class="dropdown hidden"></ul>
+
+        <!-- Elemento para mensagens de status -->
+        <div id="statusMessage" class="status-message hidden"></div>
+
+        <h2>Plantas Favoritas (máx 2)</h2>
+        <ul id="favoritas" class="favoritas"></ul>
+    </div>
+
+    <!-- Inclui o arquivo JavaScript usando url_for para referenciar o caminho estático -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
