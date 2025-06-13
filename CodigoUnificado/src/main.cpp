@@ -1,7 +1,16 @@
 #include <Arduino.h>
 #include <RtcDS1302.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include "iluminacao.h"
 #include "controle.hpp"
+
+// Wi-fi
+const char* ssid = "dlink-52EC";
+const char* password = "glhcp39210";
+
+// Servidor (IP MUDA A DEPENDER DO COMPUTADOR)
+const char* serverUrl = "http://SEU_IPPPP:8000/dados";
 
 // Pinos dos sensores
 #define SENSOR_UV 27
@@ -39,7 +48,6 @@ ControleUmidade controleUmidadeVaso1(
   BOMBA_AGUA_1,
   TEMPO_IRRIGACAO,
   INTERVALO_BOMBA,
-  umidadeMinimaPlanta,
   UMIDADE_MINIMA_1,
   UMIDADE_MAXIMA_1
 );
@@ -49,7 +57,6 @@ ControleUmidade controleUmidadeVaso2(
   BOMBA_AGUA_2,
   TEMPO_IRRIGACAO,
   INTERVALO_BOMBA,
-  umidadeMinimaPlanta,
   UMIDADE_MINIMA_2,
   UMIDADE_MAXIMA_2
 );
@@ -57,8 +64,6 @@ ControleUmidade controleUmidadeVaso2(
 ControleUV controleUVVaso1(
   SENSOR_UV,
   FONTE_UV_1,
-  indiceMinimoUV,
-  indiceMaximoUV,
   FATOR_UV_LAMPADA,
   INTERVALO_LUZ
 );
@@ -66,8 +71,6 @@ ControleUV controleUVVaso1(
 ControleUV controleUVVaso2(
   SENSOR_UV,
   FONTE_UV_2,
-  indiceMinimoUV,
-  indiceMaximoUV,
   FATOR_UV_LAMPADA,
   INTERVALO_LUZ
 );
@@ -75,9 +78,33 @@ ControleUV controleUVVaso2(
 ThreeWire myWire(RTC_DAT, RTC_CLK, RTC_RST); 
 RtcDS1302<ThreeWire> Rtc(myWire);
 
+// Variaveis para manipular os dados do site
+HTTPClient http;
+int httpResponseCode;
+
 void setup(){
   
   Serial.begin(9600);
+
+  // Conecta ao Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Conectando ao WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+
+  }
+
+  http.begin(serverUrl);
+
+  httpResponseCode = http.GET();
+
+  while (httpResponseCode != 200){
+    Serial.println("Esperando informações das plantas");
+  }
+
+  Serial.println(http.getString());
+  delay(10000);
 
   //Iniciando o RTC
   Rtc.Begin();
@@ -87,16 +114,18 @@ void setup(){
   //Rtc.SetDateTime(compiled);
 
   //Iniciando o controle de umidade e uv dos vasos
-  controleUmidadeVaso1.set();
-  controleUmidadeVaso2.set();
-  controleUVVaso1.set();
-  controleUVVaso2.set();
+  controleUmidadeVaso1.set(umidadeMinimaPlanta);
+  controleUmidadeVaso2.set(umidadeMinimaPlanta);
+  controleUVVaso1.set(indiceMinimoUV, indiceMaximoUV);
+  controleUVVaso2.set(indiceMinimoUV, indiceMaximoUV);
 
   Serial.println("Iniciando teste\n");
 
 }
 
 void loop(){
+
+
 
   RtcDateTime now = Rtc.GetDateTime();
 
