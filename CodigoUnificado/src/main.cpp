@@ -113,98 +113,6 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 HTTPClient http;
 int httpResponseCode;
 
-// Função auxiliar para processar e armazenar os dados de uma planta
-int64_t processAndStorePlantData(String payload, int plantNumber) {
-  DynamicJsonDocument doc(512); // Ajuste o tamanho se seus dados JSON forem maiores
-  DeserializationError error = deserializeJson(doc, payload);
-
-  if (error) {
-    Serial.print(F("Falha ao parsear JSON para Planta "));
-    Serial.print(plantNumber);
-    Serial.print(F(": "));
-    Serial.println(error.f_str());
-    return plantNumber;
-  }
-  const char* newNomePopular = doc["nomePopular"];
-  JsonArray newUmidadeSoloArray = doc["umidadeSolo"];
-  JsonArray newUvDiaArray = doc["uvDia"];
-
-  bool changed = false; // Flag para verificar se alguma coisa mudou
-
-  int newPlantNumber;
-
-  if (plantNumber == 1) {
-    // Comparar e atualizar Planta 1
-    if (planta1_NomePopular != newNomePopular) {
-      planta1_NomePopular = newNomePopular;
-      changed = true;
-    }
-    if (planta1_UmidadeMin != int(newUmidadeSoloArray[0])) {
-      planta1_UmidadeMin = int(newUmidadeSoloArray[0]);
-      changed = true;
-    }
-    if (planta1_UmidadeMax != int(newUmidadeSoloArray[1])) {
-      planta1_UmidadeMax = int(newUmidadeSoloArray[1]);
-      changed = true;
-    }
-    if (planta1_UvMin != int(newUvDiaArray[0])) {
-      planta1_UvMin = int(newUvDiaArray[0]);
-      changed = true;
-    }
-    if (planta1_UvMax != int(newUvDiaArray[1])) {
-      planta1_UvMax = int(newUvDiaArray[1]);
-      changed = true;
-    }
-
-    if (changed) {
-      Serial.println("--- Dados da Planta 1 ATUALIZADOS ---");
-      Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
-      Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
-      Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
-      newPlantNumber = 1;
-    } else {
-      Serial.println("--- Dados da Planta 1 INALTERADOS ---");
-      newPlantNumber = 0;
-    }
-
-  } else if (plantNumber == 2) {
-    // Comparar e atualizar Planta 2
-    if (planta2_NomePopular != newNomePopular) {
-      planta2_NomePopular = newNomePopular;
-      changed = true;
-    }
-    if (planta2_UmidadeMin != int(newUmidadeSoloArray[0])) {
-      planta2_UmidadeMin = int(newUmidadeSoloArray[0]);
-      changed = true;
-    }
-    if (planta2_UmidadeMax != int(newUmidadeSoloArray[1])) {
-      planta2_UmidadeMax = int(newUmidadeSoloArray[1]);
-      changed = true;
-    }
-    if (planta2_UvMin != int(newUvDiaArray[0])) {
-      planta2_UvMin = int(newUvDiaArray[0]);
-      changed = true;
-    }
-    if (planta2_UvMax != int(newUvDiaArray[1])) {
-      planta2_UvMax = int(newUvDiaArray[1]);
-      changed = true;
-    }
-
-    if (changed) {
-      Serial.println("--- Dados da Planta 2 ATUALIZADOS ---");
-      Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
-      Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
-      Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
-      newPlantNumber = 2;
-    } else {
-      Serial.println("--- Dados da Planta 2 INALTERADOS ---");
-      newPlantNumber = 1;
-    }
-  }
-
-  return newPlantNumber;
-}
-
 void setup(){
   
   Serial.begin(9600);
@@ -319,54 +227,126 @@ void loop(){
           int uvMax = uvDiaStr.substring(uvDiaStr.indexOf(',') + 1).toInt();
           Serial.println("  UV Min:" + String(umidadeMin)+ ", UV Max: " + String(umidadeMax));
 
-        const int capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) * 2; // For nome, umidade[], uv[]
+        // const int capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) * 2; // For nome, umidade[], uv[]
 
-        DynamicJsonDocument doc(capacity);
+        // DynamicJsonDocument doc(capacity);
 
-        doc["nome_popular"] = nomePopular;
+        // doc["nome_popular"] = nomePopular;
 
-        JsonArray umidade_solo_array = doc.createNestedArray("umidade_solo");
-        umidade_solo_array.add(umidadeMin);
-        umidade_solo_array.add(umidadeMax);
+        // JsonArray umidade_solo_array = doc.createNestedArray("umidade_solo");
+        // umidade_solo_array.add(umidadeMin);
+        // umidade_solo_array.add(umidadeMax);
 
-        JsonArray uv_dia_array = doc.createNestedArray("uv_dia");
-        uv_dia_array.add(uvMin);
-        uv_dia_array.add(uvMax);
+        // JsonArray uv_dia_array = doc.createNestedArray("uv_dia");
+        // uv_dia_array.add(uvMin);
+        // uv_dia_array.add(uvMax);
 
-        // Serialize the JsonDocument to a String
-        String jsonOutput;
-        serializeJson(doc, jsonOutput);
+        // // Serialize the JsonDocument to a String
+        // String jsonOutput;
+        // serializeJson(doc, jsonOutput);
 
-        Serial.print("Novo JSON gerado: ");
-        Serial.println(jsonOutput);
+        // Serial.print("Novo JSON gerado: ");
+        // Serial.println(jsonOutput);
 
-        // Processa e armazena os dados no conjunto de variáveis correto
-        lastUpdatedPlant = processAndStorePlantData(jsonOutput, currentPlantSetToUpdate);
-        }
+        // // Processa e armazena os dados no conjunto de variáveis correto
+        // lastUpdatedPlant = processAndStorePlantData(jsonOutput, currentPlantSetToUpdate);
 
-      } else {
+          bool changed = false; // Flag para verificar se alguma coisa mudou
+          int newPlantNumber;
+
+          if (currentPlantSetToUpdate == 1) {
+            // Comparar e atualizar Planta 1
+            if (planta1_NomePopular != nomePopular) {
+              planta1_NomePopular = nomePopular;
+              changed = true;
+            }
+            if (planta1_UmidadeMin != umidadeMin) {
+              planta1_UmidadeMin = umidadeMin;
+              changed = true;
+            }
+            if (planta1_UmidadeMax != umidadeMax) {
+              planta1_UmidadeMax = umidadeMax;
+              changed = true;
+            }
+            if (planta1_UvMin != uvMin) {
+              planta1_UvMin = uvMin;
+              changed = true;
+            }
+            if (planta1_UvMax != uvMax) {
+              planta1_UvMax = uvMax;
+              changed = true;
+            }
+
+            if (changed) {
+              Serial.println("\n--- Dados da Planta 1 ATUALIZADOS ---");
+              Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
+              Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
+              Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
+              lastUpdatedPlant = 1;
+            } else {
+              Serial.println("\n--- Dados da Planta 1 INALTERADOS ---");
+              lastUpdatedPlant = 0;
+            }
+
+          } 
+          else if (currentPlantSetToUpdate == 2) {
+            // Comparar e atualizar Planta 2
+            if (planta2_NomePopular != nomePopular) {
+              planta2_NomePopular = nomePopular;
+              changed = true;
+            }
+            if (planta2_UmidadeMin != umidadeMin) {
+              planta2_UmidadeMin = umidadeMin;
+              changed = true;
+            }
+            if (planta2_UmidadeMax != umidadeMax) {
+              planta2_UmidadeMax = umidadeMax;
+              changed = true;
+            }
+            if (planta2_UvMin != uvMin) {
+              planta2_UvMin = uvMin;
+              changed = true;
+            }
+            if (planta2_UvMax != uvMax) {
+              planta2_UvMax = uvMax;
+              changed = true;
+            }
+
+            if (changed) {
+              Serial.println("\n--- Dados da Planta 2 ATUALIZADOS ---");
+              Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
+              Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
+              Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
+              lastUpdatedPlant = 2;
+            } else {
+              Serial.println("\n--- Dados da Planta 2 INALTERADOS ---");
+              lastUpdatedPlant = 1;
+            }
+          }
+
+        } else {
         // Serial.println("Erro na requisição HTTP para Planta :  (código: )"+String(targetPlantId)+ http.errorToString(String(httpResponseCode)+ httpResponseCode);
         Serial.println(" ERRO HTTP");
-      }
+        }
 
       http.end(); // Fecha a conexão
       
       lastGet = millis();
 
-    } else {
+      } else {
       Serial.println("ESP32 não conectado ao Wi-Fi. Não é possível buscar dados.");
       WiFi.begin(ssid, password); // Tenta reconectar
       delay(1000);
+      }
     }
   }
-
   // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
   Serial.println();
   Serial.println("--- Resumo dos Dados Atuais ---");
-  Serial.println("Planta 1 - Nome:"+String(planta1_NomePopular)+ " , Umidade: Min: "+ String(planta1_UmidadeMin)+ "Max:"+
-                String(planta1_UmidadeMax)+ ", UV: Min"+ planta1_UvMin + " Max:"+ planta1_UvMax);
-  Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ "Max:"+
-                String(planta2_UmidadeMax)+ ", UV: Min"+ planta2_UvMin + " Max:"+ planta2_UvMax);
+  Serial.println("Planta 1 - Nome:"+String(planta1_NomePopular)+ " , Umidade: Min: "+ String(planta1_UmidadeMin)+ " Max: "+
+                String(planta1_UmidadeMax)+ ", UV: Min: "+ planta1_UvMin + " Max: "+ planta1_UvMax);
+  Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ " Max: "+
+                String(planta2_UmidadeMax)+ ", UV: Min: "+ planta2_UvMin + " Max: "+ planta2_UvMax);
 
   Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
