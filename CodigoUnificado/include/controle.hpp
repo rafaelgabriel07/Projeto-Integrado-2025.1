@@ -34,23 +34,25 @@ class ControleUmidade{
         _leituraMinima(leituraMinima){}  
 
     //Faz a configuracao inicial dos sensores e atuadores
-    void set(int umidadeMinima){
+    void set(){
 
         //Definindo quantidade minima de umidade
-        _umidadeMinima = umidadeMinima;
-
+        
         //Definindo os pinos
         pinMode(_sensorUmidade, INPUT);
         pinMode(_bombaAgua, OUTPUT);
-
+        
         //Definindo a saida da bomba para HIGH, pois ela liga em LOW
         digitalWrite(_bombaAgua, HIGH);
-
+        
     }
-
-    void update(){
+    
+    void update(int umidadeMinima){
+        
+        _umidadeMinima = umidadeMinima;
 
         leituraConvertida = map(analogRead(_sensorUmidade), _leituraMaxima, _leituraMinima, 0, 100);
+        leituraConvertida = constrain(leituraConvertida, 0, 100); // Constrói a leitura convertida entre 0 e 100
 
         if ((!bombaLigada) && (!intervaloLeitura) && leituraConvertida <= _umidadeMinima){
     
@@ -99,7 +101,8 @@ class ControleUV{
 
     //Parametros da planta
     int _exposicaoMinima;
-    int _exposicaoMaxima;
+    int _uvMin;
+    int _uvMax;
 
     //Fator de exposicao da lampada UV
     int _fatorUVLampada;
@@ -118,11 +121,7 @@ class ControleUV{
         _fatorUVLampada(fatorUVLampada),
         _intervaloDeLeitura(intervaloDeLeitura){}
 
-    void set(int exposicaoMinima, int exposicaoMaxima){
-
-        //Definindo a exposicao minima e maxima
-        _exposicaoMaxima = exposicaoMaxima;
-        _exposicaoMinima = exposicaoMinima;
+    void set(){
 
         //Definindo os pinos dos sensores e atuadores
         pinMode(_sensorUV, INPUT);
@@ -133,7 +132,12 @@ class ControleUV{
 
     }
 
-    void update(RtcDateTime dt){
+    void update(RtcDateTime dt, int exposicaoMinima, int uvMin, int uvMax){
+
+        //Definindo a exposicao minima e maxima
+        _exposicaoMinima = exposicaoMinima*60;
+        _uvMin = uvMin;
+        _uvMax = uvMax;
 
         float fatorUV = 0.0;
         //Serial.print("Hora:");
@@ -156,7 +160,7 @@ class ControleUV{
             //Caso esteja entre as 18h as 22h ele liga a luz uv se necessario
             else if (dt.Hour() >= 18 && dt.Hour() <= 21){
 
-                if (exposicaoAcumulada < _exposicaoMinima){
+                if (exposicaoAcumulada < (_exposicaoMinima*_uvMin)){
 
                     digitalWrite(_luzUV, LOW);
                     luzLigada = true;
@@ -164,7 +168,7 @@ class ControleUV{
                     exposicaoAcumulada += _intervaloDeLeitura * _fatorUVLampada;
 
                     // Verificar se ja chegou na exposicao acumulada minima
-                    if (exposicaoAcumulada >= _exposicaoMinima){
+                    if (exposicaoAcumulada >= _exposicaoMinima*_uvMin){
                         digitalWrite(_luzUV, HIGH);
                         luzLigada = false;
                     }

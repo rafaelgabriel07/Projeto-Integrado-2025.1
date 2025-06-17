@@ -30,8 +30,8 @@
 // Macros de tempo
 #define INTERVALO_BOMBA 10 // Segundos
 #define INTERVALO_LUZ 1 // Minutos
-#define INTERVALO_GET 40 // Segundos
-#define TEMPO_IRRIGACAO 10 // Segundos
+#define INTERVALO_GET 5 // Segundos
+#define TEMPO_IRRIGACAO 1 // Segundos
 
 // Parametros da planta
 #define UMIDADE_MAXIMA_1 3100
@@ -45,6 +45,7 @@ int planta1_UmidadeMin = 0;
 int planta1_UmidadeMax = 0;
 int planta1_UvMin = 0;
 int planta1_UvMax = 0;
+int planta1_HorasExposicao = 0; // Variável para armazenar as horas de exposição ao sol no dia
 
 // --- Variáveis para armazenar os dados da Planta 2 ---
 String planta2_NomePopular = "N/A";
@@ -52,12 +53,14 @@ int planta2_UmidadeMin = 0;
 int planta2_UmidadeMax = 0;
 int planta2_UvMin = 0;
 int planta2_UvMax = 0;
+int planta2_HorasExposicao = 0; // Variável para armazenar as horas de exposição ao sol no dia
 
 String lastNomePopular = "N/A"; // Variável para armazenar o último nome popular recebido
 int lastUmidadeMin = 0; // Variável para armazenar a última umidade mínima recebida
 int lastUmidadeMax = 0; // Variável para armazenar a última umidade máxima recebida
 int lastUvMin = 0; // Variável para armazenar o último UV mínimo recebido
 int lastUvMax = 0; // Variável para armazenar o último UV máximo recebido
+int lastHorasExposicao = 0; // Variável para armazenar a última exposição mínima recebida
 
 // Contador para controlar qual conjunto de variáveis será atualizado na próxima requisição
 // 0: Inicial (ou sem dados recebidos ainda)
@@ -124,6 +127,11 @@ void setup(){
   Serial.begin(9600);
   delay(1000);
 
+  controleUVVaso1.set();
+  controleUVVaso2.set();
+  controleUmidadeVaso1.set();
+  controleUmidadeVaso2.set();
+
    // Configura o ESP32 para o modo Station (cliente Wi-Fi)
   WiFi.mode(WIFI_STA);
 
@@ -164,12 +172,12 @@ void setup(){
 
 }
 
-unsigned long lastGet = 0;
+double lastGet = -10000;
+unsigned long lastGet2 = 0;
 
 void loop(){
 
-  
-  if (millis() - lastGet >= INTERVALO_GET){
+  if ((millis() - lastGet) >= (INTERVALO_GET*1000)){
 
     if (WiFi.status() == WL_CONNECTED) {
       HTTPClient http;
@@ -208,15 +216,18 @@ void loop(){
         Serial.println(payload);
         int firstDelimiter = payload.indexOf(';');
         int secondDelimiter = payload.indexOf(';', firstDelimiter + 1);
+        int thirdDelimiter = payload.indexOf(';', secondDelimiter + 1);
 
-        if (firstDelimiter != -1 && secondDelimiter != -1) {
+        if (firstDelimiter != -1 && secondDelimiter != -1 && thirdDelimiter != -1) {
           String nomePopular = payload.substring(0, firstDelimiter);
           String umidadeSoloStr = payload.substring(firstDelimiter + 1, secondDelimiter);
-          String uvDiaStr = payload.substring(secondDelimiter + 1);
+          String uvDiaStr = payload.substring(secondDelimiter + 1, thirdDelimiter);
+          String horasExposicao = payload.substring(thirdDelimiter + 1);
 
           Serial.println("  Nome Popular: "+ String(nomePopular));
           Serial.println("  Umidade Solo: "+ String(umidadeSoloStr));
           Serial.println("  UV Dia: "+ String(uvDiaStr));
+          Serial.println("  Horas de Exposicao ao sol no dia: "+ String(horasExposicao));
 
           // Agora você pode parsear umidadeSoloStr e uvDiaStr para extrair os números
           // e usar esses valores para controlar seus sensores/atuadores.
@@ -233,6 +244,9 @@ void loop(){
           int uvMax = uvDiaStr.substring(uvDiaStr.indexOf(',') + 1).toInt();
           Serial.println("  UV Min:" + String(umidadeMin)+ ", UV Max: " + String(umidadeMax));
 
+          int horasExposicaoInt = horasExposicao.toInt();
+          Serial.println("  Horas de Exposicao ao sol no dia: " + String(horasExposicaoInt));
+
 
           bool changed = false; // Flag para verificar se alguma coisa mudou
 
@@ -240,7 +254,8 @@ void loop(){
               umidadeMin == lastUmidadeMin && 
               umidadeMax == lastUmidadeMax && 
               uvMin == lastUvMin && 
-              uvMax == lastUvMax) {
+              uvMax == lastUvMax &&
+              horasExposicaoInt == lastHorasExposicao) {
             Serial.println("Dados recebidos são iguais aos últimos. Nenhuma atualização necessária.");
             changed = false; // Nenhuma mudança
           }else{
@@ -250,6 +265,7 @@ void loop(){
             lastUmidadeMax = umidadeMax;
             lastUvMin = uvMin;
             lastUvMax = uvMax;
+            lastHorasExposicao = horasExposicaoInt;
           }
 
           if (currentPlantSetToUpdate == 1 && changed) {
@@ -260,6 +276,7 @@ void loop(){
             planta2_UmidadeMax = 0;
             planta2_UvMin = 0;
             planta2_UvMax = 0;
+            planta2_HorasExposicao = 0; 
 
             // Comparar e atualizar Planta 1
             planta1_NomePopular = nomePopular;
@@ -267,11 +284,13 @@ void loop(){
             planta1_UmidadeMax = umidadeMax;
             planta1_UvMin = uvMin;
             planta1_UvMax = uvMax;
+            planta1_HorasExposicao = horasExposicaoInt;
   
             Serial.println("\n--- Dados da Planta 1 ATUALIZADOS ---");
             Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
             Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
             Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
+            Serial.println("  Horas de Exposicao ao sol no dia: " + String(planta1_HorasExposicao));
             lastUpdatedPlant = 1;
           } else {
               Serial.println("\n--- Dados da Planta 1 INALTERADOS ---");
@@ -285,11 +304,13 @@ void loop(){
             planta2_UmidadeMax = umidadeMax;
             planta2_UvMin = uvMin;
             planta2_UvMax = uvMax;
+            planta2_HorasExposicao = horasExposicaoInt;
 
             Serial.println("\n--- Dados da Planta 2 ATUALIZADOS ---");
             Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
             Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
             Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
+            Serial.println("  Horas de Exposicao ao sol no dia: " + String(planta2_HorasExposicao));
             lastUpdatedPlant = 2;
           } else {
             Serial.println("\n--- Dados da Planta 2 INALTERADOS ---");
@@ -297,89 +318,84 @@ void loop(){
           }
         }
       }
-    } else {
+      http.end(); // Fecha a conexão
+      // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
+      Serial.println();
+      Serial.println("--- Resumo dos Dados Atuais ---");
+      Serial.println("Planta 1 - Nome:"+String(planta1_NomePopular)+ " , Umidade: Min: "+ String(planta1_UmidadeMin)+ " Max: "+
+                    String(planta1_UmidadeMax)+ ", UV: Min: "+ planta1_UvMin + " Max: "+ planta1_UvMax + 
+                    ", Horas de Exposicao ao sol no dia: " + String(planta1_HorasExposicao));
+      Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ " Max: "+
+                    String(planta2_UmidadeMax)+ ", UV: Min: "+ planta2_UvMin + " Max: "+ planta2_UvMax + 
+                    ", Horas de Exposicao ao sol no dia: " + String(planta2_HorasExposicao));
+    } 
+    else {
       // Serial.println("Erro na requisição HTTP para Planta :  (código: )"+String(targetPlantId)+ http.errorToString(String(httpResponseCode)+ httpResponseCode);
       Serial.println(" ERRO HTTP");
       ESP.restart();
     }
 
-    http.end(); // Fecha a conexão
       
     lastGet = millis();
 
-  } else {
-    Serial.println("ESP32 não conectado ao Wi-Fi. Não é possível buscar dados.");
-    WiFi.begin(ssid, password); // Tenta reconectar
-    delay(1000);
   }
 
-  
-  // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
-  Serial.println();
-  Serial.println("--- Resumo dos Dados Atuais ---");
-  Serial.println("Planta 1 - Nome:"+String(planta1_NomePopular)+ " , Umidade: Min: "+ String(planta1_UmidadeMin)+ " Max: "+
-                String(planta1_UmidadeMax)+ ", UV: Min: "+ planta1_UvMin + " Max: "+ planta1_UvMax);
-  Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ " Max: "+
-                String(planta2_UmidadeMax)+ ", UV: Min: "+ planta2_UvMin + " Max: "+ planta2_UvMax);
 
   //Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
   RtcDateTime now = Rtc.GetDateTime();
 
-  Serial.println("Horário: " + String(now.Hour()) +   ":" + String(now.Minute()) + ":" + String(now.Second()));
-
   //Iniciando o controle de umidade e uv dos vasos
   if (planta1_NomePopular != "N/A"){
-    controleUmidadeVaso1.set(planta1_UmidadeMin);
-    controleUVVaso1.set(planta1_UvMin, planta1_UvMax);
-    controleUmidadeVaso1.update();
-    controleUVVaso1.update(now);
+    controleUmidadeVaso1.update(planta1_UmidadeMin);
+    controleUVVaso1.update(now, planta1_HorasExposicao, planta1_UvMin, planta1_UvMax);
   }
   if (planta2_NomePopular != "N/A"){
-    controleUmidadeVaso2.set(planta2_UmidadeMin);
-    controleUVVaso2.set(planta2_UvMin, planta2_UvMax);
-    controleUmidadeVaso2.update();
-    controleUVVaso2.update(now);
+    controleUmidadeVaso2.update(planta2_UmidadeMin);
+    controleUVVaso2.update(now, planta2_HorasExposicao, planta2_UvMin, planta2_UvMax);
   }
-
-  //Inicia a verificacao dos parametros de cada vaso
-  if (planta1_NomePopular != "N/A"){
-    Serial.print("Umidade sensor 1: ");
-    Serial.print(controleUmidadeVaso1.getUmidade());
-    Serial.print(" | ");
-    Serial.print("Status bomba 1: ");
-    Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
-    Serial.print(" | ");
-    Serial.print("Status intervalo 1: ");
-    Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
-    Serial.println(" | ");
+  if ((millis() - lastGet2) >= (INTERVALO_GET*1000)){
+    //Inicia a verificacao dos parametros de cada vaso
+    if (planta1_NomePopular != "N/A"){
+      Serial.print("Umidade sensor 1: ");
+      Serial.print(controleUmidadeVaso1.getUmidade());
+      Serial.print(" | ");
+      Serial.print("Status bomba 1: ");
+      Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
+      Serial.print(" | ");
+      Serial.print("Status intervalo 1: ");
+      Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
+      Serial.println(" | ");
+    }
+    if (planta2_NomePopular != "N/A"){
+      Serial.print("Umidade sensor 2: ");
+      Serial.print(controleUmidadeVaso2.getUmidade());
+      Serial.print(" | ");
+      Serial.print("Status bomba 2: ");
+      Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
+      Serial.print(" | ");
+      Serial.print("Status intervalo 2: ");
+      Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
+      Serial.println(" | ");
+    }
+    if (planta1_NomePopular != "N/A"){
+      Serial.print("Exposicao acumulada vaso 1: ");
+      Serial.print(controleUVVaso1.exposicaoAcumulada);
+      Serial.print(" | ");
+      Serial.print("Status iluminacao 1: ");
+      Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
+      Serial.println(" | ");
+    }
+    if (planta2_NomePopular != "N/A"){
+      Serial.print("Exposicao acumulada vaso 2: ");
+      Serial.print(controleUVVaso2.exposicaoAcumulada);
+      Serial.print(" | ");
+      Serial.print("Status iluminacao 2: ");
+      Serial.print(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+      Serial.println(" | ");
+    }
+  
+    lastGet2 = millis();
   }
-  if (planta2_NomePopular != "N/A"){
-    Serial.print("Umidade sensor 2: ");
-    Serial.print(controleUmidadeVaso2.getUmidade());
-    Serial.print(" | ");
-    Serial.print("Status bomba 2: ");
-    Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
-    Serial.print(" | ");
-    Serial.print("Status intervalo 2: ");
-    Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
-    Serial.println(" | ");
-  }
-  if (planta1_NomePopular != "N/A"){
-    Serial.print("Exposicao acumulada vaso 1: ");
-    Serial.print(controleUVVaso1.exposicaoAcumulada);
-    Serial.print(" | ");
-    Serial.print("Status iluminacao 1: ");
-    Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
-    Serial.println(" | ");
-  }
-  if (planta2_NomePopular != "N/A"){
-    Serial.print("Exposicao acumulada vaso 2: ");
-    Serial.print(controleUVVaso2.exposicaoAcumulada);
-    Serial.print(" | ");
-    Serial.print("Status iluminacao 2: ");
-    Serial.print(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
-    Serial.println(" | ");
-  }
-  delay(7000);
+  //delay(5000);
 }
