@@ -2,431 +2,517 @@
   {
     "nome_popular": "Rosa",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Girassol",
     "umidade_solo": "[30, 50]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Lavanda",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Cacto",
     "umidade_solo": "[10, 30]",
-    "uv_dia": "[6, 11]"
+    "uv_dia": "[6, 11]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Suculenta",
     "umidade_solo": "[15, 35]",
-    "uv_dia": "[6, 11]"
+    "uv_dia": "[6, 11]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Tomate",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Pimenta",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Manjericão",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Alecrim",
     "umidade_solo": "[30, 50]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Hortênsia",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[4, 6]"
+    "uv_dia": "[4, 6]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Samambaia",
     "umidade_solo": "[70, 90]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Violeta Africana",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Orquídea Phalaenopsis",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Lírio da Paz",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Zamioculca",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[1, 5]"
+    "uv_dia": "[1, 5]",
+    "horas_sol_pleno_dia": 1.0
   },
   {
     "nome_popular": "Espada de São Jorge",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[3, 11]"
+    "uv_dia": "[3, 11]",
+    "horas_sol_pleno_dia": 4.0
   },
   {
     "nome_popular": "Jiboia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Antúrio",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Begônia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[1, 5]"
+    "uv_dia": "[1, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Gérbera",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Cravo",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Petúnia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Calêndula",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Zínia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Impatiens",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[0, 4]"
+    "uv_dia": "[0, 4]",
+    "horas_sol_pleno_dia": 1.0
   },
   {
     "nome_popular": "Hosta",
     "umidade_solo": "[70, 90]",
-    "uv_dia": "[0, 2]"
+    "uv_dia": "[0, 2]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Astilbe",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[0, 4]"
+    "uv_dia": "[0, 4]",
+    "horas_sol_pleno_dia": 1.0
   },
   {
     "nome_popular": "Lírio",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Margarida",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Tulipa",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Narciso",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Jacinto",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Íris",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Peônia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Gardênia",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Camélia",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Azaleia",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Rododendro",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Hibisco",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Buganvília",
     "umidade_solo": "[30, 50]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Jasmim",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Madressilva",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Glicínia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Hera",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 8]"
+    "uv_dia": "[2, 8]",
+    "horas_sol_pleno_dia": 2.0
   },
   {
     "nome_popular": "Clorofito",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Singônio",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Maranta",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Calatéia",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Fitônia",
     "umidade_solo": "[70, 90]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Peperômia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 4]"
+    "uv_dia": "[0, 4]",
+    "horas_sol_pleno_dia": 1.0
   },
   {
     "nome_popular": "Cróton",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[3, 8]"
+    "uv_dia": "[3, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Pleomele",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 5]"
+    "uv_dia": "[2, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Yuca",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Pata de Elefante",
     "umidade_solo": "[15, 35]",
-    "uv_dia": "[6, 11]"
+    "uv_dia": "[6, 11]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Cica",
     "umidade_solo": "[30, 50]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 6.0
   },
   {
     "nome_popular": "Palmeira Areca",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 5]"
+    "uv_dia": "[2, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Rafia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 5]"
+    "uv_dia": "[2, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Licuala",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Ficus Lyrata",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 5]"
+    "uv_dia": "[2, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Ficus Elastica",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[2, 5]"
+    "uv_dia": "[2, 5]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Monstera Deliciosa",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Filodendro",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Aglaonema",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Dieffenbachia",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Bromélia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Tillandsia",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[3, 7]"
+    "uv_dia": "[3, 7]",
+    "horas_sol_pleno_dia": 4.5
   },
   {
     "nome_popular": "Camedorea Elegans",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[0, 3]"
+    "uv_dia": "[0, 3]",
+    "horas_sol_pleno_dia": 0.5
   },
   {
     "nome_popular": "Areca Catechu",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Cocos Nucifera (pequeno)",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Ravenala Madagascariensis (jovem)",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Strelitzia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Helicônia",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 6.0
   },
   {
     "nome_popular": "Alpinia",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 6.0
   },
   {
     "nome_popular": "Gengibre Ornamental",
     "umidade_solo": "[60, 80]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Ixora",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Lantana",
     "umidade_solo": "[30, 50]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Russélia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 10]"
+    "uv_dia": "[6, 10]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Gazânia",
     "umidade_solo": "[20, 40]",
-    "uv_dia": "[6, 11]"
+    "uv_dia": "[6, 11]",
+    "horas_sol_pleno_dia": 8.0
   },
   {
     "nome_popular": "Verbena",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Petunia Surfinia",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Dália",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Crisântemo",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Prímula",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[3, 6]"
+    "uv_dia": "[3, 6]",
+    "horas_sol_pleno_dia": 3.0
   },
   {
     "nome_popular": "Boca de Leão",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   },
   {
     "nome_popular": "Lobélia",
     "umidade_solo": "[50, 70]",
-    "uv_dia": "[4, 8]"
+    "uv_dia": "[4, 8]",
+    "horas_sol_pleno_dia": 5.0
   },
   {
     "nome_popular": "Gerânio",
     "umidade_solo": "[40, 60]",
-    "uv_dia": "[6, 8]"
+    "uv_dia": "[6, 8]",
+    "horas_sol_pleno_dia": 7.0
   }
 ]

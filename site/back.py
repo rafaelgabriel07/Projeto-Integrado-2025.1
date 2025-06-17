@@ -43,12 +43,13 @@ def select_plant():
     if dados_planta:
         print(f"Dados da planta recebidos do frontend: {dados_planta}")
         global informacao_para_esp
-        if 'nome_popular' in dados_planta and 'umidade_solo' in dados_planta and 'uv_dia' in dados_planta:
+        if 'nome_popular' in dados_planta and 'umidade_solo' in dados_planta and 'uv_dia' in dados_planta and 'horas_sol_pleno_dia' in dados_planta:
             # Formate a informação para o ESP32 como uma string simples
             # Por exemplo: "Rosa;40,60;6,8"
             umidade = str(dados_planta['umidade_solo']).replace(' ', '')
             uv = str(dados_planta['uv_dia']).replace(' ', '')
-            informacao_para_esp = f"{dados_planta['nome_popular']};{umidade};{uv}"
+            tempo = str(dados_planta['horas_sol_pleno_dia']).replace(' ','')
+            informacao_para_esp = f"{dados_planta['nome_popular']};{umidade};{uv};{tempo}"
             print(f"Informacao para ESP atualizada para: '{informacao_para_esp}'")
 
         return jsonify(status="sucesso", mensagem="Dados da planta recebidos com sucesso!"), 200

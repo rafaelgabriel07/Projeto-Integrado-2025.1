@@ -101,7 +101,7 @@ function atualizarFavoritas() {
   ul.innerHTML = '';
   favoritas.forEach(planta => {
     const li = document.createElement('li');
-    li.textContent = `${planta.nome_popular} - Solo: ${planta.umidade_solo}, UV: ${planta.uv_dia}`;
+    li.textContent = `${planta.nome_popular} - Solo: ${planta.umidade_solo}, UV: ${planta.uv_dia} ,TEMPO: ${planta.horas_sol_pleno_dia}` 
     ul.appendChild(li);
   });
 }
