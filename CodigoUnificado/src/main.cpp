@@ -253,6 +253,14 @@ void loop(){
           }
 
           if (currentPlantSetToUpdate == 1 && changed) {
+
+            //Zerando os valores da segunda planta, pois se a primeira está sendo alterada, é porque a segunda também está sem valor
+            planta2_NomePopular = "N/A";
+            planta2_UmidadeMin = 0;
+            planta2_UmidadeMax = 0;
+            planta2_UvMin = 0;
+            planta2_UvMax = 0;
+
             // Comparar e atualizar Planta 1
             planta1_NomePopular = nomePopular;
             planta1_UmidadeMin = umidadeMin;
@@ -314,51 +322,62 @@ void loop(){
   Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ " Max: "+
                 String(planta2_UmidadeMax)+ ", UV: Min: "+ planta2_UvMin + " Max: "+ planta2_UvMax);
 
-  Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
+  //Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
   RtcDateTime now = Rtc.GetDateTime();
 
   //Iniciando o controle de umidade e uv dos vasos
-  controleUmidadeVaso1.set(planta1_UmidadeMin);
-  controleUmidadeVaso2.set(planta2_UmidadeMin);
-  controleUVVaso1.set(planta1_UvMin, planta1_UvMax);
-  controleUVVaso2.set(planta2_UvMin, planta2_UvMax);
+  if (planta1_NomePopular != "N/A"){
+    controleUmidadeVaso1.set(planta1_UmidadeMin);
+    controleUVVaso1.set(planta1_UvMin, planta1_UvMax);
+    controleUmidadeVaso1.update();
+    controleUVVaso1.update(now);
+  }
+  if (planta2_NomePopular != "N/A"){
+    controleUmidadeVaso2.set(planta2_UmidadeMin);
+    controleUVVaso2.set(planta2_UvMin, planta2_UvMax);
+    controleUmidadeVaso2.update();
+    controleUVVaso2.update(now);
+  }
 
   //Inicia a verificacao dos parametros de cada vaso
-  controleUmidadeVaso1.update();
-  controleUmidadeVaso2.update();
-  controleUVVaso1.update(now);
-  controleUVVaso2.update(now);
-
-  Serial.print("Umidade sensor 1: ");
-  Serial.print(controleUmidadeVaso1.getUmidade());
-  Serial.print(" | ");
-  Serial.print("Status bomba 1: ");
-  Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Status intervalo 1: ");
-  Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
-  Serial.print(" | ");
-  Serial.print("Umidade sensor 2: ");
-  Serial.print(controleUmidadeVaso2.getUmidade());
-  Serial.print(" | ");
-  Serial.print("Status bomba 2: ");
-  Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Status intervalo 2: ");
-  Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
-  Serial.print(" | ");
-  Serial.print("Exposicao acumulada vaso 1: ");
-  Serial.print(controleUVVaso1.exposicaoAcumulada);
-  Serial.print(" | ");
-  Serial.print("Status iluminacao 1: ");
-  Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
-  Serial.print(" | ");
-  Serial.print("Exposicao acumulada vaso 2: ");
-  Serial.print(controleUVVaso2.exposicaoAcumulada);
-  Serial.print(" | ");
-  Serial.print("Status iluminacao 2: ");
-  Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+  if (planta1_NomePopular != "N/A"){
+    Serial.print("Umidade sensor 1: ");
+    Serial.print(controleUmidadeVaso1.getUmidade());
+    Serial.print(" | ");
+    Serial.print("Status bomba 1: ");
+    Serial.print(controleUmidadeVaso1.bombaLigada ? "Ligada" : "Desligada");
+    Serial.print(" | ");
+    Serial.print("Status intervalo 1: ");
+    Serial.print(controleUmidadeVaso1.intervaloLeitura ? "Em intervalo" : "Lendo");
+    Serial.println(" | ");
+  }
+  if (planta2_NomePopular != "N/A"){
+    Serial.print("Umidade sensor 2: ");
+    Serial.print(controleUmidadeVaso2.getUmidade());
+    Serial.print(" | ");
+    Serial.print("Status bomba 2: ");
+    Serial.print(controleUmidadeVaso2.bombaLigada ? "Ligada" : "Desligada");
+    Serial.print(" | ");
+    Serial.print("Status intervalo 2: ");
+    Serial.print(controleUmidadeVaso2.intervaloLeitura ? "Em intervalo" : "Lendo");
+    Serial.println(" | ");
+  }
+  if (planta1_NomePopular != "N/A"){
+    Serial.print("Exposicao acumulada vaso 1: ");
+    Serial.print(controleUVVaso1.exposicaoAcumulada);
+    Serial.print(" | ");
+    Serial.print("Status iluminacao 1: ");
+    Serial.print(controleUVVaso1.luzLigada ? "Ligada" : "Desligada");
+    Serial.println(" | ");
+  }
+  if (planta2_NomePopular != "N/A"){
+    Serial.print("Exposicao acumulada vaso 2: ");
+    Serial.print(controleUVVaso2.exposicaoAcumulada);
+    Serial.print(" | ");
+    Serial.print("Status iluminacao 2: ");
+    Serial.print(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+    Serial.println(" | ");
+  }
   delay(7000);
-
 }
