@@ -53,6 +53,12 @@ int planta2_UmidadeMax = 0;
 int planta2_UvMin = 0;
 int planta2_UvMax = 0;
 
+String lastNomePopular = "N/A"; // Variável para armazenar o último nome popular recebido
+int lastUmidadeMin = 0; // Variável para armazenar a última umidade mínima recebida
+int lastUmidadeMax = 0; // Variável para armazenar a última umidade máxima recebida
+int lastUvMin = 0; // Variável para armazenar o último UV mínimo recebido
+int lastUvMax = 0; // Variável para armazenar o último UV máximo recebido
+
 // Contador para controlar qual conjunto de variáveis será atualizado na próxima requisição
 // 0: Inicial (ou sem dados recebidos ainda)
 // 1: Última requisição foi para a Planta 1
@@ -227,119 +233,79 @@ void loop(){
           int uvMax = uvDiaStr.substring(uvDiaStr.indexOf(',') + 1).toInt();
           Serial.println("  UV Min:" + String(umidadeMin)+ ", UV Max: " + String(umidadeMax));
 
-        // const int capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) * 2; // For nome, umidade[], uv[]
-
-        // DynamicJsonDocument doc(capacity);
-
-        // doc["nome_popular"] = nomePopular;
-
-        // JsonArray umidade_solo_array = doc.createNestedArray("umidade_solo");
-        // umidade_solo_array.add(umidadeMin);
-        // umidade_solo_array.add(umidadeMax);
-
-        // JsonArray uv_dia_array = doc.createNestedArray("uv_dia");
-        // uv_dia_array.add(uvMin);
-        // uv_dia_array.add(uvMax);
-
-        // // Serialize the JsonDocument to a String
-        // String jsonOutput;
-        // serializeJson(doc, jsonOutput);
-
-        // Serial.print("Novo JSON gerado: ");
-        // Serial.println(jsonOutput);
-
-        // // Processa e armazena os dados no conjunto de variáveis correto
-        // lastUpdatedPlant = processAndStorePlantData(jsonOutput, currentPlantSetToUpdate);
 
           bool changed = false; // Flag para verificar se alguma coisa mudou
-          int newPlantNumber;
 
-          if (currentPlantSetToUpdate == 1) {
-            // Comparar e atualizar Planta 1
-            if (planta1_NomePopular != nomePopular) {
-              planta1_NomePopular = nomePopular;
-              changed = true;
-            }
-            if (planta1_UmidadeMin != umidadeMin) {
-              planta1_UmidadeMin = umidadeMin;
-              changed = true;
-            }
-            if (planta1_UmidadeMax != umidadeMax) {
-              planta1_UmidadeMax = umidadeMax;
-              changed = true;
-            }
-            if (planta1_UvMin != uvMin) {
-              planta1_UvMin = uvMin;
-              changed = true;
-            }
-            if (planta1_UvMax != uvMax) {
-              planta1_UvMax = uvMax;
-              changed = true;
-            }
-
-            if (changed) {
-              Serial.println("\n--- Dados da Planta 1 ATUALIZADOS ---");
-              Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
-              Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
-              Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
-              lastUpdatedPlant = 1;
-            } else {
-              Serial.println("\n--- Dados da Planta 1 INALTERADOS ---");
-              lastUpdatedPlant = 0;
-            }
-
-          } 
-          else if (currentPlantSetToUpdate == 2) {
-            // Comparar e atualizar Planta 2
-            if (planta2_NomePopular != nomePopular) {
-              planta2_NomePopular = nomePopular;
-              changed = true;
-            }
-            if (planta2_UmidadeMin != umidadeMin) {
-              planta2_UmidadeMin = umidadeMin;
-              changed = true;
-            }
-            if (planta2_UmidadeMax != umidadeMax) {
-              planta2_UmidadeMax = umidadeMax;
-              changed = true;
-            }
-            if (planta2_UvMin != uvMin) {
-              planta2_UvMin = uvMin;
-              changed = true;
-            }
-            if (planta2_UvMax != uvMax) {
-              planta2_UvMax = uvMax;
-              changed = true;
-            }
-
-            if (changed) {
-              Serial.println("\n--- Dados da Planta 2 ATUALIZADOS ---");
-              Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
-              Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
-              Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
-              lastUpdatedPlant = 2;
-            } else {
-              Serial.println("\n--- Dados da Planta 2 INALTERADOS ---");
-              lastUpdatedPlant = 1;
-            }
+          if(nomePopular == lastNomePopular && 
+              umidadeMin == lastUmidadeMin && 
+              umidadeMax == lastUmidadeMax && 
+              uvMin == lastUvMin && 
+              uvMax == lastUvMax) {
+            Serial.println("Dados recebidos são iguais aos últimos. Nenhuma atualização necessária.");
+            changed = false; // Nenhuma mudança
+          }else{
+            changed = true; // Alguma coisa mudou
+            lastNomePopular = nomePopular;
+            lastUmidadeMin = umidadeMin;
+            lastUmidadeMax = umidadeMax;
+            lastUvMin = uvMin;
+            lastUvMax = uvMax;
           }
 
-        } else {
-        // Serial.println("Erro na requisição HTTP para Planta :  (código: )"+String(targetPlantId)+ http.errorToString(String(httpResponseCode)+ httpResponseCode);
-        Serial.println(" ERRO HTTP");
+          if (currentPlantSetToUpdate == 1 && changed) {
+            // Comparar e atualizar Planta 1
+            planta1_NomePopular = nomePopular;
+            planta1_UmidadeMin = umidadeMin;
+            planta1_UmidadeMax = umidadeMax;
+            planta1_UvMin = uvMin;
+            planta1_UvMax = uvMax;
+  
+            Serial.println("\n--- Dados da Planta 1 ATUALIZADOS ---");
+            Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
+            Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
+            Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
+            lastUpdatedPlant = 1;
+          } else {
+              Serial.println("\n--- Dados da Planta 1 INALTERADOS ---");
+              
+          }
+
+          
+          if (currentPlantSetToUpdate == 2 && changed) {
+            planta2_NomePopular = nomePopular;
+            planta2_UmidadeMin = umidadeMin;
+            planta2_UmidadeMax = umidadeMax;
+            planta2_UvMin = uvMin;
+            planta2_UvMax = uvMax;
+
+            Serial.println("\n--- Dados da Planta 2 ATUALIZADOS ---");
+            Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
+            Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
+            Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
+            lastUpdatedPlant = 2;
+          } else {
+            Serial.println("\n--- Dados da Planta 2 INALTERADOS ---");
+            
+          }
         }
-
-      http.end(); // Fecha a conexão
-      
-      lastGet = millis();
-
-      } else {
-      Serial.println("ESP32 não conectado ao Wi-Fi. Não é possível buscar dados.");
-      WiFi.begin(ssid, password); // Tenta reconectar
-      delay(1000);
       }
+    } else {
+      // Serial.println("Erro na requisição HTTP para Planta :  (código: )"+String(targetPlantId)+ http.errorToString(String(httpResponseCode)+ httpResponseCode);
+      Serial.println(" ERRO HTTP");
+      ESP.restart();
     }
+
+    http.end(); // Fecha a conexão
+      
+    lastGet = millis();
+
+  } else {
+    Serial.println("ESP32 não conectado ao Wi-Fi. Não é possível buscar dados.");
+    WiFi.begin(ssid, password); // Tenta reconectar
+    delay(1000);
   }
+
+  
   // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
   Serial.println();
   Serial.println("--- Resumo dos Dados Atuais ---");
