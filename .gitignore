@@ -1,0 +1,17 @@
+# PlatformIO
+.pio/
+.vscode/
+*.bin
+*.elf
+*.hex
+*.lst
+*.map
+*.su
+
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+venv/
+.venv/

@@ -4,13 +4,14 @@
 #include <HTTPClient.h>
 #include "iluminacao.h"
 #include "controle.hpp"
+#include <ArduinoJson.h>
 
 // Wi-fi
-const char* ssid = "dlink-52EC";
-const char* password = "glhcp39210";
+// const char* ssid = "dlink-52EC";
+// const char* password = "glhcp39210";
 
 // Servidor (IP MUDA A DEPENDER DO COMPUTADOR)
-const char* serverUrl = "http://SEU_IPPPP:8000/dados";
+// const char* serverUrl = "http://SEU_IPPPP:8000/dados";
 
 // Pinos dos sensores
 #define SENSOR_UV 27
@@ -29,7 +30,7 @@ const char* serverUrl = "http://SEU_IPPPP:8000/dados";
 // Macros de tempo
 #define INTERVALO_BOMBA 10 // Segundos
 #define INTERVALO_LUZ 1 // Minutos
-#define INTERVALO_GET 10 // Segundos
+#define INTERVALO_GET 40 // Segundos
 #define TEMPO_IRRIGACAO 10 // Segundos
 
 // Parametros da planta
@@ -71,7 +72,7 @@ const char* flaskServerIP = "192.168.254.105"; // *** SUBSTITUA PELO IP REAL DO 
 const int flaskServerPort = 5000;          // A porta que o seu servidor Flask está rodando
 
 // Variável para armazenar a informação recebida
-String receivedPlantData = "Nenhum dado recebido";
+String payload = "Nenhum dado recebido";
 
 ControleUmidade controleUmidadeVaso1(
   SENSOR_UMIDADE_1,
@@ -113,7 +114,7 @@ HTTPClient http;
 int httpResponseCode;
 
 // Função auxiliar para processar e armazenar os dados de uma planta
-void processAndStorePlantData(String payload, int plantNumber) {
+int64_t processAndStorePlantData(String payload, int plantNumber) {
   DynamicJsonDocument doc(512); // Ajuste o tamanho se seus dados JSON forem maiores
   DeserializationError error = deserializeJson(doc, payload);
 
@@ -122,9 +123,8 @@ void processAndStorePlantData(String payload, int plantNumber) {
     Serial.print(plantNumber);
     Serial.print(F(": "));
     Serial.println(error.f_str());
-    return;
+    return plantNumber;
   }
-
   const char* newNomePopular = doc["nomePopular"];
   JsonArray newUmidadeSoloArray = doc["umidadeSolo"];
   JsonArray newUvDiaArray = doc["uvDia"];
@@ -139,28 +139,28 @@ void processAndStorePlantData(String payload, int plantNumber) {
       planta1_NomePopular = newNomePopular;
       changed = true;
     }
-    if (planta1_UmidadeMin != newUmidadeSoloArray[0].as<int>()) {
-      planta1_UmidadeMin = newUmidadeSoloArray[0].as<int>();
+    if (planta1_UmidadeMin != int(newUmidadeSoloArray[0])) {
+      planta1_UmidadeMin = int(newUmidadeSoloArray[0]);
       changed = true;
     }
-    if (planta1_UmidadeMax != newUmidadeSoloArray[1].as<int>()) {
-      planta1_UmidadeMax = newUmidadeSoloArray[1].as<int>();
+    if (planta1_UmidadeMax != int(newUmidadeSoloArray[1])) {
+      planta1_UmidadeMax = int(newUmidadeSoloArray[1]);
       changed = true;
     }
-    if (planta1_UvMin != newUvDiaArray[0].as<int>()) {
-      planta1_UvMin = newUvDiaArray[0].as<int>();
+    if (planta1_UvMin != int(newUvDiaArray[0])) {
+      planta1_UvMin = int(newUvDiaArray[0]);
       changed = true;
     }
-    if (planta1_UvMax != newUvDiaArray[1].as<int>()) {
-      planta1_UvMax = newUvDiaArray[1].as<int>();
+    if (planta1_UvMax != int(newUvDiaArray[1])) {
+      planta1_UvMax = int(newUvDiaArray[1]);
       changed = true;
     }
 
     if (changed) {
       Serial.println("--- Dados da Planta 1 ATUALIZADOS ---");
-      Serial.printf("  Nome Popular: %s\n", planta1_NomePopular.c_str());
-      Serial.printf("  Umidade Min: %d, Max: %d\n", planta1_UmidadeMin, planta1_UmidadeMax);
-      Serial.printf("  UV Min: %d, Max: %d\n", planta1_UvMin, planta1_UvMax);
+      Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
+      Serial.println("  Umidade Min: , Max: "+ String(planta1_UmidadeMin) + String(planta1_UmidadeMax));
+      Serial.println("  UV Min: , Max: " + String(planta1_UvMin)+ String(planta1_UvMax));
       newPlantNumber = 0;
     } else {
       Serial.println("--- Dados da Planta 1 INALTERADOS ---");
@@ -173,28 +173,28 @@ void processAndStorePlantData(String payload, int plantNumber) {
       planta2_NomePopular = newNomePopular;
       changed = true;
     }
-    if (planta2_UmidadeMin != newUmidadeSoloArray[0].as<int>()) {
-      planta2_UmidadeMin = newUmidadeSoloArray[0].as<int>();
+    if (planta2_UmidadeMin != int(newUmidadeSoloArray[0])) {
+      planta2_UmidadeMin = int(newUmidadeSoloArray[0]);
       changed = true;
     }
-    if (planta2_UmidadeMax != newUmidadeSoloArray[1].as<int>()) {
-      planta2_UmidadeMax = newUmidadeSoloArray[1].as<int>();
+    if (planta2_UmidadeMax != int(newUmidadeSoloArray[1])) {
+      planta2_UmidadeMax = int(newUmidadeSoloArray[1]);
       changed = true;
     }
-    if (planta2_UvMin != newUvDiaArray[0].as<int>()) {
-      planta2_UvMin = newUvDiaArray[0].as<int>();
+    if (planta2_UvMin != int(newUvDiaArray[0])) {
+      planta2_UvMin = int(newUvDiaArray[0]);
       changed = true;
     }
-    if (planta2_UvMax != newUvDiaArray[1].as<int>()) {
-      planta2_UvMax = newUvDiaArray[1].as<int>();
+    if (planta2_UvMax != int(newUvDiaArray[1])) {
+      planta2_UvMax = int(newUvDiaArray[1]);
       changed = true;
     }
 
     if (changed) {
       Serial.println("--- Dados da Planta 2 ATUALIZADOS ---");
-      Serial.printf("  Nome Popular: %s\n", planta2_NomePopular.c_str());
-      Serial.printf("  Umidade Min: %d, Max: %d\n", planta2_UmidadeMin, planta2_UmidadeMax);
-      Serial.printf("  UV Min: %d, Max: %d\n", planta2_UvMin, planta2_UvMax);
+      Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
+      Serial.println("  Umidade Min:, Max: "+ String(planta2_UmidadeMin)+ String(planta2_UmidadeMax));
+      Serial.println("  UV Min:  Max:"+ String(planta2_UvMin) + String(planta2_UvMax));
       newPlantNumber = 1;
     } else {
       Serial.println("--- Dados da Planta 2 INALTERADOS ---");
@@ -214,7 +214,7 @@ void setup(){
   WiFi.mode(WIFI_STA);
 
   // Conecta-se ao hotspot do seu celular
-  Serial.printf("Tentando conectar ao hotspot: %s\n", ssid);
+  Serial.println("Tentando conectar ao hotspot: "+ String(ssid));
   WiFi.begin(ssid, password);
 
   int attempts = 0;
@@ -223,21 +223,21 @@ void setup(){
     Serial.print(".");
     attempts++;
     if (attempts % 10 == 0) { // A cada 10 tentativas, imprime o status atual
-        Serial.printf("\nTentativa %d, Status: %d\n", attempts, WiFi.status());
+        Serial.println("Tentativa , Status: "+ String(attempts)+ WiFi.status());
     }
   }
   Serial.println(); // Nova linha
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("Conectado ao Wi-Fi! IP local do ESP32: %s\n", WiFi.localIP().toString().c_str());
-    Serial.printf("Servidor Flask esperado em: http://%s:%d/\n", flaskServerIP, flaskServerPort);
+    Serial.println("Conectado ao Wi-Fi! IP local do ESP32: "+ String(WiFi.localIP()));
+    Serial.println("Servidor Flask esperado em: http://:/"+ String(flaskServerIP)+ String(flaskServerPort));
   } else {
     Serial.println("Falha ao conectar ao Wi-Fi. Verifique SSID e senha do hotspot.");
     Serial.print("Status do WiFi: ");
     Serial.println(WiFi.status()); // Exibe o código de status da falha
     // Se não conectar, não há como buscar dados do Flask.
   }
-
+  delay(10000);
 
   //Iniciando o RTC
   Rtc.Begin();
@@ -246,11 +246,11 @@ void setup(){
   //RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   //Rtc.SetDateTime(compiled);
 
-  Serial.println("Iniciando teste\n");
-
-  unsigned long lastGet = 0;
+  Serial.println("Iniciando teste");
 
 }
+
+unsigned long lastGet = 0;
 
 void loop(){
 
@@ -278,9 +278,9 @@ void loop(){
       }
       
       // Constrói a URL para a rota /dados/<id_da_planta> do seu servidor Flask
-      String serverPath = "http://" + String(flaskServerIP) + ":" + String(flaskServerPort) + "/dados/" + targetPlantId;
+      String serverPath = "http://" + String(flaskServerIP) + ":" + String(flaskServerPort) + "/dados" ;
 
-      Serial.printf("\nBuscando dados da planta: %s (para armazenar em Planta %d)\n", targetPlantId.c_str(), currentPlantSetToUpdate);
+      Serial.println("Buscando dados da planta:  (para armazenar em Planta )"+ String(targetPlantId)+ currentPlantSetToUpdate);
       Serial.println(serverPath);
 
       http.begin(serverPath);
@@ -292,12 +292,61 @@ void loop(){
         String payload = http.getString(); // Lê o corpo da resposta
         Serial.print("Payload recebido: ");
         Serial.println(payload);
+        int firstDelimiter = payload.indexOf(';');
+        int secondDelimiter = payload.indexOf(';', firstDelimiter + 1);
+
+        if (firstDelimiter != -1 && secondDelimiter != -1) {
+          String nomePopular = payload.substring(0, firstDelimiter);
+          String umidadeSoloStr = payload.substring(firstDelimiter + 1, secondDelimiter);
+          String uvDiaStr = payload.substring(secondDelimiter + 1);
+
+          Serial.println("  Nome Popular: "+ String(nomePopular));
+          Serial.println("  Umidade Solo: "+ String(umidadeSoloStr));
+          Serial.println("  UV Dia: "+ String(uvDiaStr));
+
+          // Agora você pode parsear umidadeSoloStr e uvDiaStr para extrair os números
+          // e usar esses valores para controlar seus sensores/atuadores.
+          // Exemplo de como extrair valores de "[40,60]"
+          umidadeSoloStr.replace("[", "");
+          umidadeSoloStr.replace("]", "");
+          int umidadeMin = umidadeSoloStr.substring(0, umidadeSoloStr.indexOf(',')).toInt();
+          int umidadeMax = umidadeSoloStr.substring(umidadeSoloStr.indexOf(',') + 1).toInt();
+          Serial.println("  Umidade Min: , Max: "+ umidadeMin+ umidadeMax);
+
+          uvDiaStr.replace("[", "");
+          uvDiaStr.replace("]", "");
+          int uvMin = uvDiaStr.substring(0, uvDiaStr.indexOf(',')).toInt();
+          int uvMax = uvDiaStr.substring(uvDiaStr.indexOf(',') + 1).toInt();
+          Serial.println("  UV Min: , Max: "+ uvMin+ uvMax);
+
+        const int capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) * 2; // For nome, umidade[], uv[]
+
+        DynamicJsonDocument doc(capacity);
+
+        doc["nome_popular"] = nomePopular;
+
+        JsonArray umidade_solo_array = doc.createNestedArray("umidade_solo");
+        umidade_solo_array.add(umidadeMin);
+        umidade_solo_array.add(umidadeMax);
+
+        JsonArray uv_dia_array = doc.createNestedArray("uv_dia");
+        uv_dia_array.add(uvMin);
+        uv_dia_array.add(uvMax);
+
+        // Serialize the JsonDocument to a String
+        String jsonOutput;
+        serializeJson(doc, jsonOutput);
+
+        Serial.print("Novo JSON gerado: ");
+        Serial.println(jsonOutput);
 
         // Processa e armazena os dados no conjunto de variáveis correto
-        lastUpdatedPlant = processAndStorePlantData(payload, currentPlantSetToUpdate);
+        lastUpdatedPlant = processAndStorePlantData(jsonOutput, currentPlantSetToUpdate);
+        }
 
       } else {
-        Serial.printf("Erro na requisição HTTP para Planta %s: %s (código: %d)\n", targetPlantId.c_str(), http.errorToString(httpResponseCode).c_str(), httpResponseCode);
+        // Serial.println("Erro na requisição HTTP para Planta :  (código: )"+String(targetPlantId)+ http.errorToString(String(httpResponseCode)+ httpResponseCode);
+        Serial.println(" ERRO HTTP");
       }
 
       http.end(); // Fecha a conexão
@@ -312,14 +361,14 @@ void loop(){
   }
 
   // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
-  Serial.println("\n--- Resumo dos Dados Atuais ---");
-  Serial.printf("Planta 1 - Nome: %s, Umidade: [%d,%d], UV: [%d,%d]\n", 
-                planta1_NomePopular.c_str(), planta1_UmidadeMin, planta1_UmidadeMax, 
-                planta1_UvMin, planta1_UvMax);
-  Serial.printf("Planta 2 - Nome: %s, Umidade: [%d,%d], UV: [%d,%d]\n", 
-                planta2_NomePopular.c_str(), planta2_UmidadeMin, planta2_UmidadeMax, 
-                planta2_UvMin, planta2_UvMax);
-  Serial.printf("Próxima requisição atualizará Planta %d\n", (lastUpdatedPlant == 1) ? 2 : 1);
+  Serial.println("--- Resumo dos Dados Atuais ---");
+  Serial.println("Planta 1 - Nome: , Umidade: [,], UV: [,]"+ 
+                String(planta1_NomePopular)+ planta1_UmidadeMin+ planta1_UmidadeMax+ 
+                planta1_UvMin+ planta1_UvMax);
+  Serial.println("Planta 2 - Nome: , Umidade: [,], UV: [,]"+ 
+                String(planta2_NomePopular)+ planta2_UmidadeMin+ planta2_UmidadeMax+ 
+                planta2_UvMin+ planta2_UvMax);
+  Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
   RtcDateTime now = Rtc.GetDateTime();
 
@@ -364,5 +413,6 @@ void loop(){
   Serial.print(" | ");
   Serial.print("Status iluminacao 2: ");
   Serial.println(controleUVVaso2.luzLigada ? "Ligada" : "Desligada");
+  delay(7000);
 
 }
