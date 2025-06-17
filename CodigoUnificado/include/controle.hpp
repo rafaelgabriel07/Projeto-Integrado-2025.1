@@ -149,6 +149,7 @@ class ControleUV{
 
                 fatorUV = calculoFator(uvReading(_sensorUV));
                 exposicaoAcumulada += _intervaloDeLeitura * fatorUV;
+                Serial.println("Indice UV: " + String(fatorUV));
 
             }
 

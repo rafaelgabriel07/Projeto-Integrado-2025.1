@@ -14,7 +14,7 @@
 // const char* serverUrl = "http://SEU_IPPPP:8000/dados";
 
 // Pinos dos sensores
-#define SENSOR_UV 27
+#define SENSOR_UV 35
 #define SENSOR_UMIDADE_1 34
 #define SENSOR_UMIDADE_2 33
 #define RTC_CLK 19
@@ -325,6 +325,8 @@ void loop(){
   //Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
   RtcDateTime now = Rtc.GetDateTime();
+
+  Serial.println("Horário: " + String(now.Hour()) +   ":" + String(now.Minute()) + ":" + String(now.Second()));
 
   //Iniciando o controle de umidade e uv dos vasos
   if (planta1_NomePopular != "N/A"){
