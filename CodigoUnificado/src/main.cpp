@@ -63,12 +63,12 @@ int lastUpdatedPlant = 0;
 #define FATOR_UV_LAMPADA 3 // Fator de exposicao da lampada UV
 
 // Configurações do seu hotspot do celular
-const char* ssid = "Matheus";     // *** SUBSTITUA PELO NOME DO SEU HOTSPOT ***
+const char* ssid = "lucas";     // *** SUBSTITUA PELO NOME DO SEU HOTSPOT ***
 const char* password = "12345678"; // *** SUBSTITUA PELA SENHA DO SEU HOTSPOT ***
 
 // Endereço IP do seu PC na rede do hotspot do celular
 // Você precisa descobrir esse IP (use ipconfig no Windows ou ifconfig/ip a no Linux/macOS)
-const char* flaskServerIP = "192.168.254.105"; // *** SUBSTITUA PELO IP REAL DO SEU PC ***
+const char* flaskServerIP = "192.168.90.60"; // *** SUBSTITUA PELO IP REAL DO SEU PC ***
 const int flaskServerPort = 5000;          // A porta que o seu servidor Flask está rodando
 
 // Variável para armazenar a informação recebida
@@ -159,12 +159,12 @@ int64_t processAndStorePlantData(String payload, int plantNumber) {
     if (changed) {
       Serial.println("--- Dados da Planta 1 ATUALIZADOS ---");
       Serial.println("  Nome Popular: "+ String(planta1_NomePopular));
-      Serial.println("  Umidade Min: , Max: "+ String(planta1_UmidadeMin) + String(planta1_UmidadeMax));
-      Serial.println("  UV Min: , Max: " + String(planta1_UvMin)+ String(planta1_UvMax));
-      newPlantNumber = 0;
+      Serial.println("  Umidade Min:" + String(planta1_UmidadeMin)+ " Umidade Max: " + String(planta1_UmidadeMax));
+      Serial.println("  UV Min:" + String(planta1_UvMin) + " UV Max:" + String(planta1_UvMax));
+      newPlantNumber = 1;
     } else {
       Serial.println("--- Dados da Planta 1 INALTERADOS ---");
-      newPlantNumber = plantNumber;
+      newPlantNumber = 0;
     }
 
   } else if (plantNumber == 2) {
@@ -193,12 +193,12 @@ int64_t processAndStorePlantData(String payload, int plantNumber) {
     if (changed) {
       Serial.println("--- Dados da Planta 2 ATUALIZADOS ---");
       Serial.println("  Nome Popular: "+ String(planta2_NomePopular));
-      Serial.println("  Umidade Min:, Max: "+ String(planta2_UmidadeMin)+ String(planta2_UmidadeMax));
-      Serial.println("  UV Min:  Max:"+ String(planta2_UvMin) + String(planta2_UvMax));
-      newPlantNumber = 1;
+      Serial.println("  Umidade Min:" + String(planta2_UmidadeMin)+ " Umidade Max: " + String(planta2_UmidadeMax));
+      Serial.println("  UV Min:" + String(planta2_UvMin) + " UV Max:" + String(planta2_UvMax));
+      newPlantNumber = 2;
     } else {
       Serial.println("--- Dados da Planta 2 INALTERADOS ---");
-      newPlantNumber = plantNumber;
+      newPlantNumber = 1;
     }
   }
 
@@ -223,14 +223,14 @@ void setup(){
     Serial.print(".");
     attempts++;
     if (attempts % 10 == 0) { // A cada 10 tentativas, imprime o status atual
-        Serial.println("Tentativa , Status: "+ String(attempts)+ WiFi.status());
+        Serial.println("Tentativa" + String(attempts)+ "Status: " + WiFi.status());
     }
   }
   Serial.println(); // Nova linha
 
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("Conectado ao Wi-Fi! IP local do ESP32: "+ String(WiFi.localIP()));
-    Serial.println("Servidor Flask esperado em: http://:/"+ String(flaskServerIP)+ String(flaskServerPort));
+    Serial.println("Servidor Flask esperado em: http://:/"+ String(flaskServerIP)+ ":"+ String(flaskServerPort));
   } else {
     Serial.println("Falha ao conectar ao Wi-Fi. Verifique SSID e senha do hotspot.");
     Serial.print("Status do WiFi: ");
@@ -280,7 +280,7 @@ void loop(){
       // Constrói a URL para a rota /dados/<id_da_planta> do seu servidor Flask
       String serverPath = "http://" + String(flaskServerIP) + ":" + String(flaskServerPort) + "/dados" ;
 
-      Serial.println("Buscando dados da planta:  (para armazenar em Planta )"+ String(targetPlantId)+ currentPlantSetToUpdate);
+      Serial.println("Buscando dados da planta:" + String(targetPlantId) + " (para armazenar em Planta )"+ currentPlantSetToUpdate);
       Serial.println(serverPath);
 
       http.begin(serverPath);
@@ -311,13 +311,13 @@ void loop(){
           umidadeSoloStr.replace("]", "");
           int umidadeMin = umidadeSoloStr.substring(0, umidadeSoloStr.indexOf(',')).toInt();
           int umidadeMax = umidadeSoloStr.substring(umidadeSoloStr.indexOf(',') + 1).toInt();
-          Serial.println("  Umidade Min: , Max: "+ umidadeMin+ umidadeMax);
+          Serial.println("  Umidade Min:" + String(umidadeMin)+ ", Max: " + String(umidadeMax));
 
           uvDiaStr.replace("[", "");
           uvDiaStr.replace("]", "");
           int uvMin = uvDiaStr.substring(0, uvDiaStr.indexOf(',')).toInt();
           int uvMax = uvDiaStr.substring(uvDiaStr.indexOf(',') + 1).toInt();
-          Serial.println("  UV Min: , Max: "+ uvMin+ uvMax);
+          Serial.println("  UV Min:" + String(umidadeMin)+ ", UV Max: " + String(umidadeMax));
 
         const int capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) * 2; // For nome, umidade[], uv[]
 
@@ -361,13 +361,13 @@ void loop(){
   }
 
   // Você pode exibir os dados atuais de ambas as plantas aqui, se desejar
+  Serial.println();
   Serial.println("--- Resumo dos Dados Atuais ---");
-  Serial.println("Planta 1 - Nome: , Umidade: [,], UV: [,]"+ 
-                String(planta1_NomePopular)+ planta1_UmidadeMin+ planta1_UmidadeMax+ 
-                planta1_UvMin+ planta1_UvMax);
-  Serial.println("Planta 2 - Nome: , Umidade: [,], UV: [,]"+ 
-                String(planta2_NomePopular)+ planta2_UmidadeMin+ planta2_UmidadeMax+ 
-                planta2_UvMin+ planta2_UvMax);
+  Serial.println("Planta 1 - Nome:"+String(planta1_NomePopular)+ " , Umidade: Min: "+ String(planta1_UmidadeMin)+ "Max:"+
+                String(planta1_UmidadeMax)+ ", UV: Min"+ planta1_UvMin + " Max:"+ planta1_UvMax);
+  Serial.println("Planta 2 - Nome:"+String(planta2_NomePopular)+ " , Umidade: Min: "+ String(planta2_UmidadeMin)+ "Max:"+
+                String(planta2_UmidadeMax)+ ", UV: Min"+ planta2_UvMin + " Max:"+ planta2_UvMax);
+
   Serial.println("Próxima requisição atualizará Planta "+(lastUpdatedPlant == 1) ? 2 : 1);
 
   RtcDateTime now = Rtc.GetDateTime();
